@@ -20,6 +20,7 @@ const Product = () => {
     const [productType, setProductType] = useState('')
     const [priceSale, setPricesale] = useState('')
     const [quantity, setQuantity] = useState('')
+    const fileInputRef = useRef(null);
 
     const [listProductType, setListProductType] = useState([])
     const [isErr, setIsErr] = useState(false)
@@ -73,6 +74,8 @@ const Product = () => {
         setAddTypeHeigh(value)
         setAlterTypeHeigh(false)
         setIsErr(false)
+        clearP()
+        fileInputRef.current.value=""
     }
 
     const hideAll = () => {
@@ -206,6 +209,16 @@ const Product = () => {
         setClickdelete(!clickdelete);
     }
 
+    const clearP = async (e) => {
+        setName('')
+        setDescribe('')
+        setProductType('')
+        setPrice('')
+        setPricesale('')
+        setQuantity('')
+        setImagep('')
+    }
+
     const addProductType = async (e) => {
         e.preventDefault()
 
@@ -221,15 +234,18 @@ const Product = () => {
         dispatch(actions.addProduct({ formData }))
             .then((response) => {
                 console.log(response);
-                if (response) {
+                if (response && response.data.success) {
                     console.log(response)
                     hideAll()
                     showNoti()
                     loadProductType()
+                    clearP()
+                    fileInputRef.current.value=""
                     
                 }
                 else {
-                    setIsErr(response.message)
+                    console.log(response.data)
+                    setIsErr(response.data.msg)
                 }
 
             })
@@ -252,6 +268,7 @@ const Product = () => {
         setFquantity('')
         setFimagep('')
     }
+    
 
     const alterProductType = async (e) => {
         e.preventDefault()
@@ -268,15 +285,15 @@ const Product = () => {
 
         dispatch(actions.alterProduct({ formData }))
             .then((response) => {
-                console.log(response.data.response)
-                if (response.data.response.success) {
+                console.log(response)
+                if (response && response.data.success) {
                     hideAll()
                     showNoti()
                     loadProductType()
                     clearF()
                 }
                 else {
-                    setIsErr(response.msg)
+                    setIsErr(response.data.msg)
                 }
             })
     }
@@ -319,8 +336,8 @@ const Product = () => {
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.Name}</th>
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.ProductType}</th>
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.Describe}</th>
-                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.Price}</th>
-                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.PriceSale}</th>
+                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.Price.toLocaleString()}</th>
+                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.PriceSale.toLocaleString()}</th>
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.Quantity}</th>
                                             <th className="border border-b-slate-300 font-normal text-[18px] p-2 flex justify-center items-center"><img src={item.Image} className='h-[120px]'></img></th>
                                             <th className="border border-b-slate-300 items-center justify-center px-6 py-4">
@@ -347,7 +364,7 @@ const Product = () => {
                                     THÊM SẢN PHẨM
                                     <button
                                         type="button"
-                                        onClick={() => showAlter(false)}
+                                        onClick={() => showAdd(false)}
                                         className="absolute right-4 text-gray-400 hover:text-gray-500"
                                     >
                                         <span className="absolute -inset-0.5" />
@@ -369,6 +386,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập loại sản phẩm"
+                                                value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                             />
                                         </div>
@@ -387,6 +405,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập loại sản phẩm"
+                                                value={productType}
                                                 onChange={(e) => setProductType(e.target.value)}
                                             />
                                         </div>
@@ -405,6 +424,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập mô tả"
+                                                value={describe}
                                                 onChange={(e) => setDescribe(e.target.value)}
                                             />
                                         </div>
@@ -423,6 +443,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập mô tả"
+                                                value={price}
                                                 onChange={(e) => setPrice(e.target.value)}
                                             />
                                         </div>
@@ -441,6 +462,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập loại sản phẩm"
+                                                value={priceSale}
                                                 onChange={(e) => setPricesale(e.target.value)}
                                             />
                                         </div>
@@ -459,6 +481,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 placeholder="Nhập loại sản phẩm"
+                                                value={quantity}
                                                 onChange={(e) => setQuantity(e.target.value)}
                                             />
                                         </div>
@@ -476,12 +499,13 @@ const Product = () => {
                                                 type="file"
                                                 id="image"
                                                 accept="image/*"
+                                                ref={fileInputRef}
                                                 onChange={handleImageChange}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="text-red-600 w-full">{isErr ? isErr : ''}</div>
+                                    <div className="text-red-600 w-full">{isErr}</div>
 
                                     <button type="submit" className="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
                                         Thêm

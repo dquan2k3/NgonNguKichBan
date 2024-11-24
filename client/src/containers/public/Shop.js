@@ -15,8 +15,10 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import * as actions from '../../store/actions'
+import { useNavigate } from 'react-router-dom';
 
 const Shop = () => {
+    const navigate = useNavigate()
 
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
@@ -25,7 +27,7 @@ const Shop = () => {
     const dispatch = useDispatch()
     const [url, setUrl] = useState('')
     const [productlist, setProductlist] = useState([])
-    
+
     useEffect(() => {
         dispatch(actions.loadBanner())
             .then((response) => {
@@ -37,7 +39,7 @@ const Shop = () => {
                 }
             })
     }, [])
-    
+
 
     const loadProduct = async (e) => {
         dispatch(actions.loadProduct())
@@ -200,7 +202,7 @@ const Shop = () => {
 
                 </div>
 
-                <div className='w-[1100px] h-[50px] bg-gray-300'></div>                
+                <div className='w-[1100px] h-[50px] bg-gray-300'></div>
 
                 <div className="bg-gray-50">
                     <div className="mx-auto max-w-2xl px-4 py-16 !pt-2 sm:px-6 sm:py-24 lg:max-w-[1100px] lg:px-8">
@@ -208,7 +210,7 @@ const Shop = () => {
 
                         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
                             {productlist.map((product) => (
-                                <a key={product.id} href={"product.href"} className="group">
+                                <div key={product._id} onClick={() => navigate(`/productDetails?id=${product._id}`)} className="group cursor-pointer">
                                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
                                         <img
                                             alt={product.Name}
@@ -217,8 +219,12 @@ const Shop = () => {
                                         />
                                     </div>
                                     <h3 className="mt-4 text-left text-sm text-gray-700">{product.Name}</h3>
-                                    <div className="mt-1 w-full justify-center text-left text-lg font-medium text-gray-900">{product.PriceSale} đ</div>
-                                </a>
+                                    <div className='flex '>
+                                        <div className="mt-1 text-left text-lg font-medium text-gray-900">{product.PriceSale ? product.PriceSale.toLocaleString() : product.price.toLocaleString()} đ</div>
+                                        <div className="mt-1 text-sm text-gray-500 line-through pl-4">{product.PriceSale ? product.Price.toLocaleString() : ''} đ</div>
+                                    </div>
+
+                                </div>
                             ))}
                         </div>
                     </div>

@@ -17,12 +17,23 @@ export const loadProduct = async () => {
 
 export const loadProductdetail = async (id) => {
   try {
-    console.log(id)
     const product = await ProductModel.findOne({ _id: new ObjectId(id) })
     return { success: true, product: product };
   }
   catch (error) {
     console.log(error)
+    return { success: false, err: 3, msg: error.message || 'Lỗi không xác định' };
+  }
+}
+
+export const loadRandomProduct = async () => {
+  try {
+    const list = await ProductModel.aggregate([
+      { $sample: { size: 3 } }
+    ]);
+    return { success: true, list: list };
+  }
+  catch (error) {
     return { success: false, err: 3, msg: error.message || 'Lỗi không xác định' };
   }
 }
@@ -99,7 +110,7 @@ export const alterProduct = async ({ id, fname, fproductType, fdescribe, fprice,
     const cloudId = product.CloudId
     const randomPublicId = crypto.randomBytes(16).toString('hex');
     const updatedCloudId = cloudId || randomPublicId;
-    if(fimagep){
+    if (fimagep) {
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
@@ -122,7 +133,7 @@ export const alterProduct = async ({ id, fname, fproductType, fdescribe, fprice,
               console.log('Upload error:', error.message);
               return reject({ success: false, msg: error.message });
             }
-  
+
             const url = uploadResult.secure_url;
             console.log('Uploaded file URL:', url);
             try {
@@ -141,13 +152,13 @@ export const alterProduct = async ({ id, fname, fproductType, fdescribe, fprice,
             }
           }
         );
-  
+
         // Pipe buffer vào stream
         streamifier.createReadStream(fimagep.buffer).pipe(uploadStream);
       });
       return result;
     }
-    else{
+    else {
       try {
         await ProductModel.findOneAndUpdate(
           { _id: id },
@@ -157,14 +168,14 @@ export const alterProduct = async ({ id, fname, fproductType, fdescribe, fprice,
             runValidators: true,
           }
         );
-        return{ success: true, msg: 'Sửa sản phẩm thành công' };
+        return { success: true, msg: 'Sửa sản phẩm thành công' };
       } catch (dbError) {
         console.error('Database error:', dbError.message);
-        return{ success: false, msg: 'Database update failed' };
+        return { success: false, msg: 'Database update failed' };
       }
     }
 
-    
+
   }
   catch (error) {
     console.log(fimagep)
@@ -190,3 +201,31 @@ export const deleteProduct = async ({ id }) => {
   }
 }
 
+export const test = async () => {
+  console.log("services ok")
+}
+
+export const renderHotProduct = async () => {
+  try {
+    const products = await ProductModel.find({})
+      .sort({ createdAt: -1 }) // Sắp xếp theo thứ tự giảm dần (mới nhất trước)
+      .limit(8); // Lấy tối đa 8 kết quả
+    return { success: true, hotproducts: products };
+  } catch (error) {
+    console.error('Error fetching hot products:', error);
+    return { success: false, error: error.message }; // Trả về thông tin lỗi
+  }
+};
+
+export const renderSaleProduct = async () => {
+  try {
+    const products = await ProductModel.find({
+      $expr: { $lt: ["$PriceSale", "$Price"] } // So sánh pricesale < price
+    });
+
+    return { success: true, saleproducts: products };
+  } catch (error) {
+    console.error('Error fetching discounted products:', error);
+    return { success: false, error: error.message };
+  }
+}

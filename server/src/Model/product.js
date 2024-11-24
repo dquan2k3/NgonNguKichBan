@@ -9,6 +9,8 @@ const ProductSchema = new mongoose.Schema({
     PriceSale: Number,
     Quantity: Number,
     CloudId: String
-});
+},
+{ timestamps: true }
+);
 
 export const ProductModel = mongoose.model('product', ProductSchema);

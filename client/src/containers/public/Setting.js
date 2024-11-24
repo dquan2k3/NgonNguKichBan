@@ -36,7 +36,7 @@ const Setting = () => {
         MySwal.fire({
             icon: "success", // Icon của popup
             title: "Done!", // Tiêu đề
-            text: "Operation completed successfully!", // Nội dung
+            text: "Thành công!", // Nội dung
             timer: 1000, // Hiển thị trong 1 giây
             showConfirmButton: false, // Ẩn nút OK
             position: "top-start", // Vị trí góc trên bên trái

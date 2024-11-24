@@ -16,6 +16,19 @@ export const apiLoadProduct = async (id) => {
   }
 }
 
+export const apiLoadRandomProduct = async (id) => {
+  try {
+    const response = await axiosConfig({
+      method: 'post',
+      url: '/api/loadRandomProduct'
+    })
+    return response
+  }
+  catch(error){
+    console.log(error)
+  }
+}
+
 export const apiLoadProductDetail = async (formData) => {
   try {
     const response = await axiosConfig({
@@ -72,6 +85,34 @@ export const apiAlterProduct = async ({ formData }) => {
       method:'post',
       url: '/api/alterProduct',
       data: formData 
+    })
+    return response
+  }
+  catch(error){
+    console.log(error)
+    return({success: false, err:error})
+  }
+}
+
+export const apiRenderHotProduct = async () => {
+  try{
+    const response = await axiosConfig({
+      method:'post',
+      url: '/api/renderHotProduct'
+    })
+    return response
+  }
+  catch(error){
+    console.log(error)
+    return({success: false, err:error})
+  }
+}
+
+export const apiRenderSaleProduct = async () => {
+  try{
+    const response = await axiosConfig({
+      method:'post',
+      url: '/api/renderSaleProduct'
     })
     return response
   }
