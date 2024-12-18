@@ -1,12 +1,15 @@
-import { Routes, Route } from 'react-router-dom';
-import { ForgotPassword, Home, Login, Register, Shop, Aboutus, Contact, ShoppingCart, Dashboard, LHeader, AddProductType, ProductType, Product, Setting, ProductDetails } from './containers/public'
+import { Routes, Route, Navigate  } from 'react-router-dom';
+import { ForgotPassword, Home, Login, Register, Shop, Aboutus, Contact, ShoppingCart, Dashboard, LHeader, AddProductType, ProductType, Product, Setting, ProductDetails, Order, ContactA } from './containers/public'
 import { path } from './ultils/constant';
 import { CartProvider } from './containers/system/cartContext';
 
+
 function App() {
+
   return (
     <CartProvider>
       <Routes>
+        <Route path="/" element={<Navigate to="/home" />} />
         <Route path={path.HOME} element={<Home />} />
         <Route path={path.LOGIN} element={<Login />} />
         <Route path={path.REGISTER} element={<Register />} />
@@ -22,6 +25,8 @@ function App() {
         <Route path={path.PRODUCT} element={<Product />}></Route>
         <Route path={path.SETTING} element={<Setting />}></Route>
         <Route path={path.PRODUCTDETAILS} element={<ProductDetails />}></Route>
+        <Route path={path.ORDER} element={<Order />}></Route>
+        <Route path={path.CONTACTA} element={<ContactA />}></Route>
       </Routes>
     </CartProvider>
   );

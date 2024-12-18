@@ -5,6 +5,8 @@ import productRouter from './product'
 import settingRouter from './setting'
 import connectDB from '../config/connectDatabase';
 import cartRouter from './cart'
+import contactRouter from './contact'
+import orderRouter from './order'
 const router = express.Router()
 
 const initRoutes = (app) => {
@@ -19,6 +21,9 @@ const initRoutes = (app) => {
     app.use('/api', productRouter)
     app.use('/api', settingRouter)
     app.use("/api", cartRouter);
+    app.use("/api", contactRouter);
+    app.use("/api", orderRouter)
+    
     app.use("/gett", (req, res) =>{
         res.send(req.session)
     })

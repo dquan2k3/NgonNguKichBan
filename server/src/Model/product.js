@@ -13,4 +13,11 @@ const ProductSchema = new mongoose.Schema({
 { timestamps: true }
 );
 
+ProductSchema.pre('save', function (next) {
+    if (!this.PriceSale) {
+      this.PriceSale = this.Price; // Gán PriceSale bằng Price nếu không có giá trị
+    }
+    next();
+  });
+
 export const ProductModel = mongoose.model('product', ProductSchema);

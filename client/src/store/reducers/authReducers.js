@@ -9,9 +9,9 @@ const authReducers = (state = initState, action) => {
     switch (action.type) {
         case actionTypes.REGISTER_SUCCESS:
             return {
-                ...state,
-                isLoggedIn: true,
-                token: action.data
+                ...state,               
+                token: action.data,
+                isLoggedIn: true
             }
         case actionTypes.REGISTER_FAIL:
             return {
@@ -22,8 +22,8 @@ const authReducers = (state = initState, action) => {
         case actionTypes.LOGIN_SUCCESS:
             return {
                 ...state,
-                isLoggedIn: true,
-                token: action.data
+                token: action.data,
+                isLoggedIn: true
             }
         case actionTypes.LOGIN_FAIL:
             return {

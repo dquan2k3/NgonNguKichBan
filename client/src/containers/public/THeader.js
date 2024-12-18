@@ -5,20 +5,63 @@ import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { } from '@fortawesome/free-solid-svg-icons';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { faFacebookF, faInstagram, faTwitter, faYoutube, faTiktok } from '@fortawesome/free-brands-svg-icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../store/actions';
 import { useCart } from '../system/cartContext';
+import { jwtDecode } from 'jwt-decode';
 
 
 export const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [open, setOpen] = useState(false)
   const { isLoggedIn } = useSelector(state => state.auth)
   const { cart, addToCart, cartp, addToCartp } = useCart();
   const [sum, setSum] = useState(0)
+  const [user, setUser] = useState('')
+  
+  useEffect(() => {
+    const persistedAuth = JSON.parse(localStorage.getItem('persist:auth'));
+  
+    if (persistedAuth && persistedAuth.token) {
+      const token = persistedAuth.token.replace(/^"|"$/g, '');
+  
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded.account);
+      } catch (error) {
+        console.error("Token không hợp lệ:", error);
+      }
+    } else {
+      console.log("Không có token trong localStorage.");
+    }
+  
+    // Sau 1 giây, chạy lại hàm
+    const timeoutId = setTimeout(() => {
+      const persistedAuthAgain = JSON.parse(localStorage.getItem('persist:auth'));
+  
+      if (persistedAuthAgain && persistedAuthAgain.token) {
+        const token = persistedAuthAgain.token.replace(/^"|"$/g, '');
+  
+        try {
+          const decoded = jwtDecode(token);
+          setUser(decoded.account);
+        } catch (error) {
+          console.error("Token không hợp lệ:", error);
+        }
+      } else {
+        console.log("Không có token trong localStorage.");
+      }
+    }, 100); // 1 giây sau sẽ chạy lại
+  
+    // Cleanup nếu component unmount hoặc `isLoggedIn` thay đổi
+    return () => {
+      clearTimeout(timeoutId); // Dọn dẹp timeout khi component unmount hoặc `isLoggedIn` thay đổi
+    };
+  }, [isLoggedIn]);
 
   const Logout = async (e) => {
     dispatch(actions.logout())
@@ -175,7 +218,7 @@ export const Header = () => {
                           </a>
                         </div>
                         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                          <p>
+                          <div>
                             hoặc{' '}
                             <button
                               type="button"
@@ -185,7 +228,7 @@ export const Header = () => {
                               Tiếp tục mua hàng
                               <span aria-hidden="true"> &rarr;</span>
                             </button>
-                          </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -198,6 +241,7 @@ export const Header = () => {
         </div>
 
         {isLoggedIn ? <div className="h-[30px] w-max flex item-center">
+          <h5 className="my-auto cursor-pointer text-white mx-[10px]">{user}</h5>
           <h5 onClick={() => Logout()} className="my-auto cursor-pointer text-white mx-[10px]">Đăng xuất</h5>
         </div> : <div className="h-[30px] w-max flex item-center">
           <h5 onClick={() => navigate('/login')} className="my-auto cursor-pointer text-white mx-[10px]">Đăng nhập</h5>

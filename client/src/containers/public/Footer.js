@@ -56,8 +56,8 @@ export const Footer = () => {
                 <span className="text-gray-400 text-lg flex-1">© 2024 LUX Store</span>
                 <div className="flex flex-1 justify-end">
                     <span className="text-gray-400 text-lg">We accept: </span>
-                    <FontAwesomeIcon className="size-6 my-auto mx-1" icon={faCcVisa} className="text-xl ml-2" />
-                    <FontAwesomeIcon className="size-6 my-auto mx-1" icon={faCcMastercard} className="text-xl ml-2" />
+                    <FontAwesomeIcon className="size-6 my-auto mx-1 text-xl ml-2" icon={faCcVisa} />
+                    <FontAwesomeIcon className="size-6 my-auto mx-1 text-xl ml-2" icon={faCcMastercard} />
                 </div>
             </div>
         </footer>

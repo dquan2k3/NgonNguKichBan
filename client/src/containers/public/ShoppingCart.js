@@ -11,6 +11,7 @@ import { faX } from '@fortawesome/free-solid-svg-icons';
 import Swal from "sweetalert2";
 import withReactContent from 'sweetalert2-react-content'
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
 
 const ShoppingCart = () => {
@@ -89,12 +90,26 @@ const ShoppingCart = () => {
     };
 
 
+
+
     const cod = () => {
         if (!user || !address) {
             setErr('Vui lòng nhập đầy đủ thông tin!')
             return
         }
-        dispatch(actions.cod(user, address))
+        let key = ''
+        const persistedAuth = JSON.parse(localStorage.getItem('persist:auth'));
+        if (persistedAuth && persistedAuth.token) {
+            const token = persistedAuth.token.replace(/^"|"$/g, '');
+
+            try {
+                const decoded = jwtDecode(token);
+                key = decoded.account
+            } catch (error) {
+                console.error("Token không hợp lệ:", error);
+            }
+        }
+        dispatch(actions.cod(user, address, key))
             .then((response) => {
                 if (response && response.data.success) {
                     addToCartp(response.data.cart)
@@ -265,7 +280,7 @@ const ShoppingCart = () => {
                                         value={user}
                                         class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                                     />
-                                    <label class={`absolute cursor-text pointer-events-none bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-7 peer-focus:-left-1 peer-focus:text-xl peer-focus:text-black peer-focus:font-semibold peer-focus:scale-90 ${user ? '-top-7 -left-1 text-xl text-black scale-90 font-semibold' : ''}`}>
+                                    <label class={`absolute cursor-text pointer-events-none bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-7 peer-focus:-left-1 peer-focus:text-xl peer-focus:text-black peer-focus:font-semibold peer-focus:scale-90 ${user ? '!-top-7 !-left-1 !text-xl !text-black !scale-90 !font-semibold' : ''}`}>
                                         Tên của bạn
                                     </label>
                                 </div>
@@ -275,7 +290,7 @@ const ShoppingCart = () => {
                                         value={address}
                                         class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
                                     />
-                                    <label class={`absolute cursor-text pointer-events-none bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-7 peer-focus:-left-1 peer-focus:text-xl peer-focus:text-black peer-focus:font-semibold peer-focus:scale-90 ${address ? '-top-7 -left-1 text-xl text-black scale-90 font-semibold' : ''}`}>
+                                    <label class={`absolute cursor-text pointer-events-none bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-7 peer-focus:-left-1 peer-focus:text-xl peer-focus:text-black peer-focus:font-semibold peer-focus:scale-90 ${address ? '!-top-7 !-left-1 !text-xl !text-black !scale-90 !font-semibold' : ''}`}>
                                         Địa chỉ
                                     </label>
                                 </div>

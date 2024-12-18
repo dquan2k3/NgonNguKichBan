@@ -15,7 +15,8 @@ export const registerServices = ({account, password}) => new Promise(async(resol
             });
             try {
                 await NewRegister.save();
-                const token = jwt.sign({id: NewRegister._id, account: NewRegister.account}, process.env.SECRET_KEY, {expiresIn: '2d'})
+                console.log(NewRegister)
+                const token = jwt.sign({id: NewRegister._id, account: NewRegister.Account, role: NewRegister.Role}, process.env.SECRET_KEY, {expiresIn: '2d'})
                 resolve({success: true, err: 0, token: token, msg: 'Tạo tài khoản'}) 
             }
             catch (error) {
@@ -36,7 +37,7 @@ export const loginServices = ({account, password}) => new Promise(async(resolve,
         const user = await accountModel.findOne({ Account: account});
         if (user) {
             if(bcrypt.compareSync(password, user.Password)){
-                const token = jwt.sign({id: user._id, account: user.Account}, process.env.SECRET_KEY, {expiresIn: '2d'})
+                const token = jwt.sign({id: user._id, account: user.Account, role: user.Role}, process.env.SECRET_KEY, {expiresIn: '2d'})
                 resolve({success: true, err: 0, token: token, msg: 'Đăng nhập thành công!'}) 
             }
         }

@@ -62,14 +62,17 @@ export const removeFromCart = async (session, id) => {
   }
 };
 
-export const cod = async (session, req, user, address) => {
+export const cod = async (session, user, address, keyy) => {
+  console.log('useryyy:', user);   // Kiểm tra giá trị của user
+  console.log('addressyyy:', address);  // Kiểm tra giá trị của address
+  console.log('keyyyy:', keyy);
   const { cart } = session;
 
   if (!cart || !Array.isArray(cart)) {
     console.log("Cart data is invalid");
   }
 
-  try{
+  try {
     const cartItems = cart.map((item) => ({
       productId: item.product._id,
       name: item.product.Name,
@@ -80,18 +83,19 @@ export const cod = async (session, req, user, address) => {
       priceSale: item.product.PriceSale,
       amount: item.product.Amount,
     }));
-  
+
     const newCart = new Cart({
       User: user,
       Address: address,
+      Account: keyy,
       Items: cartItems,
     });
     await newCart.save()
     session.cart = [];
-    return {success: true, cart: session.cart}
+    return { success: true, cart: session.cart }
   }
-  catch(error){
-    return{success: false, msg: error}
+  catch (error) {
+    return { success: false, msg: error }
   }
 
 

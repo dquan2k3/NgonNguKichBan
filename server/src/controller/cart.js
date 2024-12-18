@@ -12,7 +12,7 @@ export const getCart = async (req, res) => {
 export const testtt = async (req, res) => {
   await CartService.testtt(req.session);
   res.send('ok')
-  
+
 };
 
 export const addToCart = async (req, res) => {
@@ -43,11 +43,14 @@ export const removeFromCart = async (req, res) => {
 };
 
 export const cod = async (req, res) => {
-  const { user, address } = req.body;
-  const response = await CartService.cod(req.session, user, address);
+  const { user, address, keyy } = req.body;
+  console.log('user:', user);   // Kiểm tra giá trị của user
+  console.log('address:', address);  // Kiểm tra giá trị của address
+  console.log('key:', keyy);
+  const response = await CartService.cod(req.session, user, address, keyy);
   console.log(response)
   if (response.success) {
-    return res.json({ success: true, cart: response.cart});
+    return res.json({ success: true, cart: response.cart });
   } else {
     return res.json({ success: false, msg: response.msg });
   }

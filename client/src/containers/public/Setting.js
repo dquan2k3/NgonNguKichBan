@@ -262,6 +262,8 @@ const Setting = () => {
         formData.append('file', imagehome);
         formData.append('alter', JSON.stringify(alter));
 
+        setLoadinghome(true);
+
         dispatch(actions.alterBannerhome({ formData }))
             .then((response) => {
                 if (response.data.success) {
@@ -337,7 +339,7 @@ const Setting = () => {
                                 {activeTab === 1 && <div className="h-[97%] w-full">
                                     <div className="h-[90%] w-full flex flex-wrap gap-y-2 gap-x-[5%] content-start overflow-auto">
                                         {homebanner.map((item, index) => (
-                                            <div key={index} ref={(el) => (divRefs.current[index] = el)} onClick={() => setAlter({ id: item._id, publicid: item.CloudId })} className={`${alter.id == item._id ? 'bg-blue-400' : ''} hover:bg-blue-300 cursor-pointer w-[30%] h-[48%] border-2 border-gray-400 flex p-2`}>
+                                            <div key={index} ref={(el) => (divRefs.current[index] = el)} onClick={() => setAlter({ id: item._id, publicid: item.CloudId })} className={`${alter.id == item._id ? '!bg-blue-400' : ''} hover:bg-blue-300 cursor-pointer w-[30%] h-[48%] border-2 border-gray-400 flex p-2`}>
                                                 <div className="w-[80%] h-full">
                                                     <img src={item.Url} alt='homebanner' className="w-full h-full" />
                                                 </div>

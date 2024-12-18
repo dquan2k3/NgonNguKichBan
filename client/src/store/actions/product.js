@@ -1,8 +1,8 @@
 import actionTypes from './actionTypes'
 import { apiAddProduct, apiLoadProduct, apiDeleteProduct, apiAlterProduct, apiLoadProductDetail, apiLoadRandomProduct, apiRenderHotProduct, apiRenderSaleProduct } from '../../services/Product'
 
-export const loadProduct = (id) => async () => {
-    const data = await apiLoadProduct()
+export const loadProduct = (page, limit, typeselect, sapxep, minPrice, maxPrice) => async () => {
+    const data = await apiLoadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice})
     return data
 }
 

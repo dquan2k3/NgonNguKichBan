@@ -50,7 +50,7 @@ const Aboutus = () => {
                             và các món đồ trang trí độc đáo.
                         </p>
                         <a
-                            href="/LienHe" // Đường dẫn hoặc route đến trang Liên hệ
+                            href="/contact" // Đường dẫn hoặc route đến trang Liên hệ
                             className="mt-6 inline-block text-blue-500 border border-blue-500 rounded-lg px-4 py-2 hover:bg-blue-500 hover:text-white"
                         >
                             Liên hệ với chúng tôi

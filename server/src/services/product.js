@@ -5,12 +5,109 @@ const crypto = require('crypto');
 const cloudinary = require('../config/cloudinaryConfig')
 const streamifier = require('streamifier');
 
-export const loadProduct = async () => {
+export const loadProduct = async ({ page = 1, limit = 7, typeselect = 'Loại', sapxep = 'Sắp xếp', minPrice = -1, maxPrice = -1 }) => {
   try {
-    const list = await ProductModel.find({});
-    return { success: true, list: list };
+    if (typeselect === 'Loại' && sapxep === 'Sắp xếp' && minPrice === -1 && maxPrice === -1) {
+      const skip = (page - 1) * limit;
+      const sortOrder = { createdAt: -1 }; // Sắp xếp theo ngày tạo, giảm dần
+
+      // Sử dụng aggregate để lấy danh sách sản phẩm và giá trị PriceSale min/max
+      const [result] = await ProductModel.aggregate([
+        {
+          $facet: {
+            products: [
+              { $sort: sortOrder },
+              { $skip: skip },
+              { $limit: limit },
+            ],
+            priceStats: [
+              { $group: { _id: null, minPriceSale: { $min: "$PriceSale" }, maxPriceSale: { $max: "$PriceSale" } } },
+            ],
+          },
+        },
+      ]);
+
+      const list = result.products;
+      const priceStats = result.priceStats[0] || { minPriceSale: null, maxPriceSale: null };
+
+      // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
+      const totalContacts = await ProductModel.countDocuments();
+      const totalPages = Math.ceil(totalContacts / limit);
+
+      return { success: true, list, totalPages, minPrice: priceStats.minPriceSale, maxPrice: priceStats.maxPriceSale };
+    }
+    else {
+      let sortOrder = {};
+      let filter = {};
+
+      // Xác định thứ tự sắp xếp dựa trên giá trị của 'sapxep'
+      if (sapxep === 'Giá thấp đến cao') {
+        sortOrder = { PriceSale: 1 }; // Tăng dần
+      } else if (sapxep === 'Giá cao đến thấp') {
+        sortOrder = { PriceSale: -1 }; // Giảm dần
+      } else {
+        sortOrder = { createdAt: -1 }; // Giảm dần theo ngày tạo
+      }
+
+      // Thêm điều kiện lọc nếu 'typeselect' khác 'Loại' và không rỗng
+      if (typeselect && typeselect !== 'Loại') {
+        filter.ProductType = typeselect;
+      }
+
+      const priceStatsMM = await ProductModel.aggregate([
+        { $match: filter }, // Lọc theo điều kiện
+        {
+          $group: {
+            _id: null,
+            minPrice: { $min: "$PriceSale" },
+            maxPrice: { $max: "$PriceSale" },
+          },
+        },
+      ]);
+
+      // Kiểm tra và gán giá trị minPrice và maxPrice
+      let minPriceMM = null;
+      let maxPriceMM = null;
+      if (priceStatsMM.length > 0) {
+        minPriceMM = priceStatsMM[0].minPrice;
+        maxPriceMM = priceStatsMM[0].maxPrice;
+      }
+
+      // Thêm điều kiện lọc theo khoảng giá nếu 'minPrice' và 'maxPrice' khác -1
+      if (minPrice !== -1 || maxPrice !== -1) {
+        filter.PriceSale = {};
+        if (minPrice !== -1) {
+          filter.PriceSale.$gte = minPrice; // Giá lớn hơn hoặc bằng minPrice
+        }
+        if (maxPrice !== -1) {
+          filter.PriceSale.$lte = maxPrice; // Giá nhỏ hơn hoặc bằng maxPrice
+        }
+      }
+
+      const skip = (page - 1) * limit;
+      
+      const list = await ProductModel.find(filter)
+      .sort(sortOrder)
+      .skip(skip)
+      .limit(limit);
+
+      // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
+      const totalContacts = await ProductModel.countDocuments(filter);
+      const totalPages = Math.ceil(totalContacts / limit);
+
+      return {
+        success: true,
+        list,
+        totalPages,
+        minPrice: minPriceMM,
+        maxPrice: maxPriceMM,
+      };
+
+
+    }
   }
   catch (error) {
+    console.log(error)
     return { success: false, err: 3, msg: error.message || 'Lỗi không xác định' };
   }
 }

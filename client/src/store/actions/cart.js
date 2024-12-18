@@ -17,7 +17,7 @@ export const removeCart = (id) => async () => {
 }
 
 
-export const cod = (user, address) => async () => {
-    const data = await apiCod(user, address)
+export const cod = (user, address, keyy) => async () => {
+    const data = await apiCod(user, address, keyy)
     return data
 }

@@ -1,9 +1,72 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from './THeader';
 import BHeader from './BHeader';
 import Footer from './Footer';
+import Swal from 'sweetalert2';
 
 function Contact() {
+    const [email, setEmail] = useState('')
+    const [hoten, setHoten] = useState('')
+    const [mess, setMess] = useState('')
+
+    const handleSubmit = async () => {
+        if(email== '' || hoten== '' || mess == ''){
+            Swal.fire({
+                icon: 'error',
+                title: 'Thất bại!',
+                text: 'Chưa nhập đủ thông tin',
+            });
+            return
+        }
+        try {
+            const response = await fetch('http://localhost:5000/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    hoten: hoten,
+                    mess: mess,
+                }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+    
+            if (data.success) {
+                // Hiển thị SweetAlert khi thành công
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Done',
+                    text: data.msg || 'Dữ liệu đã được gửi thành công.',
+                });
+                setHoten('')
+                setEmail('')
+                setMess('')
+            } else {
+                // Hiển thị SweetAlert khi thất bại
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thất bại!',
+                    text: data.msg || 'Có lỗi xảy ra trong quá trình xử lý.',
+                });
+            }
+        } catch (error) {
+            console.error('Có lỗi xảy ra:', error);
+    
+            // Hiển thị thông báo lỗi
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Không thể kết nối đến server. Vui lòng thử lại sau.',
+            });
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -54,31 +117,38 @@ function Contact() {
                         <div className="mb-6">
                             <h3 className="text-xl font-semibold">LUX STORE SẴN SÀNG LẮNG NGHE BẠN</h3>
                         </div>
-                        <form action="/LienHe/Feedback" method="post" className="space-y-4">
+                        <div method="post" className="space-y-4">
                             <input
-                                type="text"
-                                name="ten"
-                                placeholder="Họ và tên"
+                                required
+                                type="name"
+                                value={hoten}   // Liên kết giá trị với state
+                                onChange={(e) => setHoten(e.target.value)}  // Cập nhật trực tiếp khi giá trị thay đổi
+                                placeholder="Nhập họ tên"
                                 className="w-full border border-gray-300 p-2"
                             />
                             <input
+                                required
                                 type="email"
-                                name="email"
-                                placeholder="Email"
+                                value={email}   // Liên kết giá trị với state
+                                onChange={(e) => setEmail(e.target.value)}  // Cập nhật trực tiếp khi giá trị thay đổi
+                                placeholder="Nhập email"
                                 className="w-full border border-gray-300 p-2"
                             />
                             <textarea
+                                required
                                 name="ttin"
-                                placeholder="Thông tin"
+                                value={mess}   // Liên kết giá trị với state
+                                onChange={(e) => setMess(e.target.value)}  // Cập nhật trực tiếp khi giá trị thay đổi
+                                placeholder="Nhập phản hồi"
                                 className="w-full border border-gray-300 p-2 h-24"
                             ></textarea>
                             <button
-                                type="submit"
+                                onClick={handleSubmit}
                                 className="w-full bg-blue-600 text-white py-2 mt-4 hover:bg-blue-700"
                             >
                                 Xác nhận
                             </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

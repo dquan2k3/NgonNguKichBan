@@ -1,10 +1,11 @@
 import * as ProductService from '../services/product'
 
 export const loadProduct = async (req, res) => {
-    const data = await ProductService.loadProduct();
+    const { page, limit, typeselect, sapxep, minPrice, maxPrice } = req.body;
+    const data = await ProductService.loadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice});
     if(data.success){
         
-        return res.json({ success: true, list: data.list });
+        return res.json({ success: true, list: data.list, totalPages: data.totalPages, minPrice: data.minPrice, maxPrice: data.maxPrice });
     }
     else{
         res.status(400).json({ success: false, err: data.err, msg: data.msg });

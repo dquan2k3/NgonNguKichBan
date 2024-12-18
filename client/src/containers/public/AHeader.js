@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCube, faCubes, faChartLine, faAddressBook } from '@fortawesome/free-solid-svg-icons';
+import { faCube, faCubes, faChartLine, faAddressBook, faCartFlatbed } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 const AHeader = () => {
@@ -40,11 +40,11 @@ const AHeader = () => {
           <button className="inline-flex items-center p-2 hover:bg-gray-100 focus:bg-gray-100 rounded-lg">
             <span className="sr-only">User Menu</span>
             <div className="hidden md:flex md:flex-col md:items-end md:leading-tight">
-              <span className="font-semibold">Grace Simmons</span>
-              <span className="text-sm text-gray-600">Lecturer</span>
+              <span className="font-semibold">Admin</span>
+              <span className="text-sm text-gray-600"></span>
             </div>
             <span className="h-12 w-12 ml-2 sm:ml-3 mr-2 bg-gray-100 rounded-full overflow-hidden">
-              <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="user profile photo" className="h-full w-full object-cover" />
+              <img src="https://th.bing.com/th/id/OIP.EButPh5XVfk5CuenIfhuagHaHa?rs=1&pid=ImgDetMain" alt="user profile photo" className="h-full w-full object-cover" />
             </span>
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor" className="hidden sm:block h-6 w-6 text-gray-300">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -72,7 +72,7 @@ const AHeader = () => {
         <a href="#" className="inline-flex items-center justify-center h-20 w-20 bg-purple-600 hover:bg-purple-500 focus:bg-purple-500">
           <svg fill="none" viewBox="0 0 64 64" className="h-12 w-12">
             <title>Company logo</title>
-            <path d="M32 14.2c-8 0-12.9 4-14.9 11.9 3-4 6.4-5.6 10.4-4.5 2.3.6 4 2.3 5.7 4 2.9 3 6.3 6.4 13.7 6.4 7.9 0 12.9-4 14.8-11.9-3 4-6.4 5.5-10.3 4.4-2.3-.5-4-2.2-5.7-4-3-3-6.3-6.3-13.7-6.3zM17.1 32C9.2 32 4.2 36 2.3 43.9c3-4 6.4-5.5 10.3-4.4 2.3.5 4 2.2 5.7 4 3 3 6.3 6.3 13.7 6.3 8 0 12.9-4 14.9-11.9-3 4-6.4 5.6-10.4 4.5-2.3-.6-4-2.3-5.7-4-2.9-3-6.3-6.4-13.7-6.4z" fill="#fff" />
+            <img className='w-10 h-10' src='https://cdn1.iconfinder.com/data/icons/system-ui-set/154/letter-l-uppercase-latin-keyboard-512.png' />
           </svg>
         </a>
 
@@ -92,11 +92,15 @@ const AHeader = () => {
             </a> */}
               <a onClick={() => navigate('/productType')} id="productType" href="#" className="w-full overflow-hidden flex items-center justify-start py-3 pl-[10px] hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
                 <FontAwesomeIcon icon={faCubes} className="text-2xl" />
-                <div className="whitespace-nowrap ml-5 text-xl">Loai san pham</div>
+                <div className="whitespace-nowrap ml-5 text-xl">Loại sản phẩm</div>
               </a>
-              <a href="#" className="w-full overflow-hidden flex items-center justify-start py-3 pl-[15px] hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+              <a onClick={() => navigate('/order')} id="order" href="#" className="w-full overflow-hidden flex items-center justify-start py-3 pl-[10px] hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
+                <FontAwesomeIcon icon={faCartFlatbed} className="text-2xl" />
+                <div className="whitespace-nowrap ml-5 text-xl">Đơn hàng</div>
+              </a>
+              <a onClick={() => navigate('/contacta')} href='#' id='contact' className="w-full overflow-hidden flex items-center justify-start py-3 pl-[15px] hover:text-gray-400 hover:bg-gray-700 focus:text-gray-400 focus:bg-gray-700 rounded-lg">
                 <FontAwesomeIcon icon={faAddressBook} />
-                <div className="whitespace-nowrap ml-5 text-xl">Liên hệ từ khách hàng</div>
+                <div  className="whitespace-nowrap ml-5 text-xl">Liên hệ từ khách hàng</div>
               </a>
             </nav>
             <div className="inline-flex items-center justify-center h-20 w-full border-t border-gray-700 p-3">

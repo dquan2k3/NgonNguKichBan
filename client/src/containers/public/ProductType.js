@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch } from 'react-redux'
 import * as actions from '../../store/actions'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
 const ProductType = () => {
 
@@ -27,6 +28,9 @@ const ProductType = () => {
     const [clickdelete, setClickdelete] = useState(false)
     const [clickOutside, setClickOutside] = useState(false);
     const divRefs = useRef([]);
+    const [page, setPage] = useState(1)
+    const [pagelist, setPagelist] = useState([]);
+    const [pagecount, setPagecount] = useState(1);
 
     const showNoti = () => {
         setNoti(true)
@@ -39,7 +43,6 @@ const ProductType = () => {
         setAlterTypeHeigh(value)
         setAddTypeHeigh(false)
         setIsErr(false)
-
     }
 
     const showAdd = (value) => {
@@ -55,9 +58,12 @@ const ProductType = () => {
     }
 
     const loadProductType = async (e) => {
-        dispatch(actions.loadProductType())
+        dispatch(actions.loadProductType(page))
             .then((response) => {
                 if (response.data.success) {
+                    const newList = Array.from({ length: response.data.totalPages }, (_, i) => i + 1);
+                    setPagelist(newList);
+                    setPagecount(response.data.totalPages)
                     setListProductType(response.data.list)
                 }
                 else {
@@ -69,13 +75,12 @@ const ProductType = () => {
 
     useEffect(() => {
         loadProductType();
-        console.log(listProductType)
-        
+
         const pd = document.getElementById('productType');
         if (pd) {
             pd.classList.add('!text-purple-600', '!bg-white');
         }
-    }, [])
+    }, [page])
 
 
     const addProductType = async (e) => {
@@ -141,16 +146,20 @@ const ProductType = () => {
     }, []);
 
     useEffect(() => {
-        if (isdelete) {            
+        if (isdelete) {
             const element = document.getElementById(`e${isdelete}`);
             const target = document.getElementById(`d${isdelete}`);
             setTimeout(() => {
-                target.innerHTML = 'Xác nhận'
+                if (target) {
+                    target.innerHTML = 'Xác nhận'
+                }
             }, 150);
 
 
+            if (element) {
+                element.classList.toggle('hidden');
+            }
 
-            element.classList.toggle('hidden');
 
             if (isdelete === confirmDelete) {
                 deleteProductType()
@@ -160,19 +169,21 @@ const ProductType = () => {
                 const elementecf = document.getElementById(`e${confirmDelete}`);
                 const elementdcf = document.getElementById(`d${confirmDelete}`);
                 setTimeout(() => {
-                    elementecf.classList.toggle('hidden');
+                    if (elementecf) { elementecf.classList.toggle('hidden'); }
+
                 }, 310);
                 setTimeout(() => {
-                    elementdcf.innerHTML = 'Xóa'
+                    if (elementdcf) { elementdcf.innerHTML = 'Xóa' }
+                    
                 }, 100);
 
             }
 
             setConfirmDelete(isdelete);
-            
+
         }
         else {
-            if(confirmDelete){
+            if (confirmDelete) {
                 const elementecf = document.getElementById(`e${confirmDelete}`);
                 const elementdcf = document.getElementById(`d${confirmDelete}`);
                 setTimeout(() => {
@@ -183,7 +194,7 @@ const ProductType = () => {
                 }, 100);
                 setConfirmDelete(isdelete);
             }
-            else{
+            else {
                 console.log('firstLoad')
             }
 
@@ -202,12 +213,12 @@ const ProductType = () => {
         dispatch(actions.alterProductType({ id, fname, fdescribe }))
             .then((response) => {
                 console.log(response.data.response)
-                if(response.data.response.success){
+                if (response.data.response.success) {
                     hideAll()
                     showNoti()
                     loadProductType()
                 }
-                else{
+                else {
                     setIsErr(response.msg)
                 }
             })
@@ -217,22 +228,22 @@ const ProductType = () => {
 
         <div className='bg-[#F3F4F6]'>
             <AHeader />
-            <div name='container' s className='pl-20 pt-20 w-full h-screen '>
+            <div name='container' className='pl-20 pt-20 w-full h-screen '>
                 <div name='task' className='m-3'>
                     <div className="">
                         <div className="text-[28px] font-medium pl-7 pt-2 bg-gray-300 border border-gray-400 rounded-t-xl flex justify-between">
-                            <p className=' relative'  >LOẠI SẢN PHẨM
+                            <div className=' relative'  >LOẠI SẢN PHẨM
                                 <div className={`bg-green-400 w-52 ${noti ? 'max-h-10' : 'max-h-0'} z-20 overflow-hidden flex h-10 absolute text-white ease-in-out font-semibold pl-2 rounded-b-lg transition-all duration-500`}>
                                     <div className="pr-3"><FontAwesomeIcon icon={faCheck} /></div>
                                     Thành công
                                 </div>
-                            </p>
-                            <button onClick={() => showAdd(true)} class="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-xl px-4 rounded text-center h-9 mr-3">
+                            </div>
+                            <button onClick={() => showAdd("true")} className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-xl px-4 rounded text-center h-9 mr-3">
                                 Thêm
                             </button>
                         </div>
 
-                        <div name='tablecontainer' className="max-h-[700px] w-full overflow-y-auto relative">
+                        <div name='tablecontainer' className="max-h-[730px] min-h-[730px] w-full overflow-y-auto relative">
                             <table className="w-full border-separate border-spacing-0">
                                 <thead className='bg-gray-200 sticky -top-1 z-10 '>
                                     <tr className="w-full">
@@ -248,20 +259,106 @@ const ProductType = () => {
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.Describe}</th>
                                             <th className="border border-b-slate-300 flex items-center justify-center px-6 py-4">
                                                 <div className="font-normal text-[18px] gap-3 flex items-center justify-end mx-auto w-[135px]">
-                                                    <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Describe); setFname(item.Name); setFdescribe(item.Describe); showAlter(true) }} href="#" class="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
+                                                    <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Describe); setFname(item.Name); setFdescribe(item.Describe); showAlter("true") }} href="#" className="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
                                                     <div
                                                         key={index}
                                                         ref={(el) => (divRefs.current[index] = el)}
                                                         onClick={() => {
                                                             setIsdelete(item._id);
                                                             sClickdelete();
-                                                        }} id={`d${item._id}`} href="#" class={`cursor-pointer select-none font-medium border-[3px] ${isdelete == item._id ? "w-36" : "w-16"} h-10 flex text-center justify-center items-center transition-all duration-300 rounded-2xl border-red-600 text-red-600 dark:text-red-500 hover:text-white hover:bg-red-500`}>Xóa</div>
+                                                        }} id={`d${item._id}`} href="#" className={`cursor-pointer select-none font-medium border-[3px] ${isdelete === item._id ? "w-36" : "w-16"} h-10 flex text-center justify-center items-center transition-all duration-300 rounded-2xl border-red-600 text-red-600 dark:text-red-500 hover:text-white hover:bg-red-500`}>Xóa</div>
                                                 </div>
                                             </th>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
+
+
+                        </div>
+                        
+                        <div className="py-2.5 w-full flex justify-center items-center">
+                            <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                {/* Nút Previous */}
+                                <a
+                                    onClick={() => { setPage(1) }}
+                                    href="#"
+                                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-200 focus:z-20"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <ChevronLeftIcon aria-hidden="true" className="size-5" />
+                                </a>
+
+                                {/* Các trang */}
+                                {pagelist.length > 6
+                                    ? (() => {
+                                        const startPages = pagelist.slice(0, 3); // 3 trang đầu
+                                        const endPages = pagelist.slice(-3); // 3 trang cuối
+
+                                        return (
+                                            <>
+                                                {/* Hiển thị 3 trang đầu */}
+                                                {startPages.map((pagex, index) => (
+                                                    <a
+                                                        key={index}
+                                                        onClick={() => setPage(pagex)}
+                                                        href="#"
+                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                            ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                            : 'text-gray-900 hover:bg-gray-200'
+                                                            }`}
+                                                    >
+                                                        {pagex}
+                                                    </a>
+                                                ))}
+
+                                                {/* Hiển thị dấu ... */}
+                                                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
+                                                    ...
+                                                </span>
+
+                                                {/* Hiển thị 3 trang cuối */}
+                                                {endPages.map((pagex, index) => (
+                                                    <a
+                                                        key={pagelist.length + index} // Đảm bảo key là duy nhất
+                                                        onClick={() => setPage(pagex)}
+                                                        href="#"
+                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                            ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                            : 'text-gray-900 hover:bg-gray-200'
+                                                            }`}
+                                                    >
+                                                        {pagex}
+                                                    </a>
+                                                ))}
+                                            </>
+                                        );
+                                    })()
+                                    : pagelist.map((pagex, index) => (
+                                        <a
+                                            key={index}
+                                            onClick={() => setPage(pagex)}
+                                            href="#"
+                                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                : 'text-gray-900 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {pagex}
+                                        </a>
+                                    ))
+                                }
+
+                                {/* Nút Next */}
+                                <a
+                                    onClick={() => { setPage(pagecount) }}
+                                    href="#"
+                                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-200 focus:z-20"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <ChevronRightIcon aria-hidden="true" className="size-5" />
+                                </a>
+                            </nav>
                         </div>
 
                         <div name='popup_add' className={` ${addTypeHeigh ? "h-screen" : "h-0"} bg-slate-600 z-30 bg-blur-100 transition-all duration-100 flex justify-center items-center flex-col top-0 left-0 bg-opacity-45 fixed w-full`}>
@@ -317,7 +414,7 @@ const ProductType = () => {
 
                                     <div className="text-red-600 w-full">{isErr ? isErr : ''}</div>
 
-                                    <button type="submit" class="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
+                                    <button type="submit" className="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
                                         Thêm
                                     </button>
                                 </form>
@@ -383,29 +480,14 @@ const ProductType = () => {
 
                                     <div className="text-red-600 w-full">{isErr ? isErr : ''}</div>
 
-                                    <button type="submit" class="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
+                                    <button type="submit" className="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
                                         Sửa
                                     </button>
                                 </form>
                             </div>
                         </div>
 
-                        {/* <div name='popup_delete' className={` ${deleteTypeHeigh ? "h-screen" : "h-0"} bg-slate-600 transition-all duration-100 flex justify-center items-center flex-col top-0 left-0 bg-opacity-45 fixed w-full`}>
-                <div className={`${deleteTypeHeigh ? "visable" : "hidden"} h-[500px] w-[850px] bg-white rounded-lg`}>
-                    <div className="w-full h-[15%] bg-slate-300 relative rounded-t-lg flex justify-center items-center text-[28px] font-semibold">
-                        XOÁ SẢN PHẨM
-                        <button
-                            type="button"
-                            onClick={() => showDelete(false)}
-                            className="absolute right-4 text-gray-400 hover:text-gray-500"
-                        >
-                            <span className="absolute -inset-0.5" />
-                            <span className="sr-only">Close panel</span>
-                            <XMarkIcon aria-hidden="true" className="h-9 w-9" />
-                        </button>
-                    </div>
-                </div>
-            </div> */}
+
                     </div>
                 </div>
             </div>

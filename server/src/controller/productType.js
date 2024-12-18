@@ -1,10 +1,11 @@
 import * as ProductTypeService from '../services/productType'
 
 export const loadProductType = async (req, res) => {
-    const data = await ProductTypeService.loadProductType();
+    const { page } = req.body;
+    const data = await ProductTypeService.loadProductType({page});
     if(data.success){
         
-        return res.json({ success: true, list: data.list });
+        return res.json({ success: true, list: data.list, totalPages: data.totalPages });
     }
     else{
         res.status(400).json({ success: false, err: data.err, msg: data.msg });

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch } from 'react-redux'
 import * as actions from '../../store/actions'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
 const Product = () => {
 
@@ -23,6 +24,7 @@ const Product = () => {
     const fileInputRef = useRef(null);
 
     const [listProductType, setListProductType] = useState([])
+    const [listProductTypeee, setListProductTypeee] = useState([])
     const [isErr, setIsErr] = useState(false)
     const [fname, setFname] = useState('')
     const [fdescribe, setFdescribe] = useState('')
@@ -41,6 +43,10 @@ const Product = () => {
     const [clickdelete, setClickdelete] = useState(false)
     const [clickOutside, setClickOutside] = useState(false);
     const divRefs = useRef([]);
+
+    const [page, setPage] = useState(1)
+    const [pagelist, setPagelist] = useState([]);
+    const [pagecount, setPagecount] = useState(1);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -75,7 +81,7 @@ const Product = () => {
         setAlterTypeHeigh(false)
         setIsErr(false)
         clearP()
-        fileInputRef.current.value=""
+        fileInputRef.current.value = ""
     }
 
     const hideAll = () => {
@@ -85,10 +91,26 @@ const Product = () => {
     }
 
     const loadProductType = async (e) => {
-        dispatch(actions.loadProduct())
+        dispatch(actions.loadProduct(page))
             .then((response) => {
                 if (response.data.success) {
+                    const newList = Array.from({ length: response.data.totalPages }, (_, i) => i + 1);
+                    setPagelist(newList);
+                    console.log('list', response.data.totalPages)
+                    setPagecount(response.data.totalPages)
                     setListProductType(response.data.list)
+                }
+                else {
+                    console.log('Loi')
+                }
+            });
+    }
+
+    const loadProductTypeee = async (e) => {
+        dispatch(actions.loadProductType())
+            .then((response) => {
+                if (response.data.success) {
+                    setListProductTypeee(response.data.list)
                 }
                 else {
                     console.log('Loi')
@@ -99,12 +121,13 @@ const Product = () => {
 
     useEffect(() => {
         loadProductType();
+        loadProductTypeee()
 
         const pd = document.getElementById('product');
         if (pd) {
             pd.classList.add('!text-purple-600', '!bg-white');
         }
-    }, [])
+    }, [page])
 
 
     const deleteProductType = async () => {
@@ -240,8 +263,8 @@ const Product = () => {
                     showNoti()
                     loadProductType()
                     clearP()
-                    fileInputRef.current.value=""
-                    
+                    fileInputRef.current.value = ""
+
                 }
                 else {
                     console.log(response.data)
@@ -268,7 +291,7 @@ const Product = () => {
         setFquantity('')
         setFimagep('')
     }
-    
+
 
     const alterProductType = async (e) => {
         e.preventDefault()
@@ -301,22 +324,22 @@ const Product = () => {
 
         <div className='bg-[#F3F4F6]'>
             <AHeader />
-            <div name='container' s className='pl-20 pt-20 w-full h-screen '>
+            <div name='container' className='pl-20 pt-20 w-full h-screen '>
                 <div name='task' className='m-3'>
                     <div className="">
                         <div className="text-[28px] font-medium pl-7 pt-2 bg-gray-300 border border-gray-400 rounded-t-xl flex justify-between">
-                            <p className=' relative'  >SẢN PHẨM
+                            <div className=' relative'  >SẢN PHẨM
                                 <div className={`bg-green-400 w-52 ${noti ? 'max-h-10' : 'max-h-0'} z-20 overflow-hidden flex h-10 absolute text-white ease-in-out font-semibold pl-2 rounded-b-lg transition-all duration-500`}>
                                     <div className="pr-3"><FontAwesomeIcon icon={faCheck} /></div>
                                     Thành công
                                 </div>
-                            </p>
+                            </div>
                             <button onClick={() => showAdd(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-xl px-4 rounded text-center h-9 mr-3">
                                 Thêm
                             </button>
                         </div>
 
-                        <div name='tablecontainer' className="max-h-[700px] w-full overflow-y-auto relative">
+                        <div name='tablecontainer' className="max-h-[730px] min-h-[730px] w-full overflow-y-auto relative">
                             <table className="w-full border-separate border-spacing-0">
                                 <thead className='bg-gray-200 sticky -top-1 z-10 '>
                                     <tr className="w-full">
@@ -358,6 +381,90 @@ const Product = () => {
                             </table>
                         </div>
 
+                        <div className="py-2.5 w-full flex justify-center items-center">
+                            <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
+                                {/* Nút Previous */}
+                                <a
+                                    onClick={() => { setPage(1) }}
+                                    href="#"
+                                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-200 focus:z-20"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <ChevronLeftIcon aria-hidden="true" className="size-5" />
+                                </a>
+
+                                {/* Các trang */}
+                                {pagelist.length > 6
+                                    ? (() => {
+                                        const startPages = pagelist.slice(0, 3); // 3 trang đầu
+                                        const endPages = pagelist.slice(-3); // 3 trang cuối
+
+                                        return (
+                                            <>
+                                                {/* Hiển thị 3 trang đầu */}
+                                                {startPages.map((pagex, index) => (
+                                                    <a
+                                                        key={index}
+                                                        onClick={() => setPage(pagex)}
+                                                        href="#"
+                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                            ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                            : 'text-gray-900 hover:bg-gray-200'
+                                                            }`}
+                                                    >
+                                                        {pagex}
+                                                    </a>
+                                                ))}
+
+                                                {/* Hiển thị dấu ... */}
+                                                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-gray-300">
+                                                    ...
+                                                </span>
+
+                                                {/* Hiển thị 3 trang cuối */}
+                                                {endPages.map((pagex, index) => (
+                                                    <a
+                                                        key={pagelist.length + index} // Đảm bảo key là duy nhất
+                                                        onClick={() => setPage(pagex)}
+                                                        href="#"
+                                                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                            ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                            : 'text-gray-900 hover:bg-gray-200'
+                                                            }`}
+                                                    >
+                                                        {pagex}
+                                                    </a>
+                                                ))}
+                                            </>
+                                        );
+                                    })()
+                                    : pagelist.map((pagex, index) => (
+                                        <a
+                                            key={index}
+                                            onClick={() => setPage(pagex)}
+                                            href="#"
+                                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-gray-300 ${pagex === page
+                                                ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600'
+                                                : 'text-gray-900 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {pagex}
+                                        </a>
+                                    ))
+                                }
+
+                                {/* Nút Next */}
+                                <a
+                                    onClick={() => { setPage(pagecount) }}
+                                    href="#"
+                                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-200 focus:z-20"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <ChevronRightIcon aria-hidden="true" className="size-5" />
+                                </a>
+                            </nav>
+                        </div>
+
                         <div name='popup_add' className={` ${addTypeHeigh ? "h-screen" : "h-0"} bg-slate-600 z-30 bg-blur-100 transition-all duration-100 flex justify-center items-center flex-col top-0 left-0 bg-opacity-45 fixed w-full`}>
                             <div className={`${addTypeHeigh ? "visable" : "hidden"} pb-8 w-[850px] bg-white rounded-lg flex flex-col items-center`}>
                                 <div className="w-full h-[70px] bg-slate-300 relative rounded-t-lg flex justify-center items-center text-[28px] font-semibold">
@@ -385,7 +492,7 @@ const Product = () => {
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập tên sản phẩm"
                                                 value={name}
                                                 onChange={(e) => setName(e.target.value)}
                                             />
@@ -400,14 +507,21 @@ const Product = () => {
                                             >
                                                 Loại sản phẩm
                                             </label>
-                                            <input
+                                            <select
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
-                                                type="text"
-                                                placeholder="Nhập loại sản phẩm"
                                                 value={productType}
                                                 onChange={(e) => setProductType(e.target.value)}
-                                            />
+                                            >
+                                                <option value="" disabled>
+                                                    Chọn loại sản phẩm
+                                                </option>
+                                                {listProductTypeee.map((type, index) => (
+                                                    <option key={index} value={type.Name}>
+                                                        {type.Name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
 
@@ -442,7 +556,7 @@ const Product = () => {
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
-                                                placeholder="Nhập mô tả"
+                                                placeholder="Nhập giá"
                                                 value={price}
                                                 onChange={(e) => setPrice(e.target.value)}
                                             />
@@ -461,7 +575,7 @@ const Product = () => {
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập giá sale"
                                                 value={priceSale}
                                                 onChange={(e) => setPricesale(e.target.value)}
                                             />
@@ -480,7 +594,7 @@ const Product = () => {
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập số lượng"
                                                 value={quantity}
                                                 onChange={(e) => setQuantity(e.target.value)}
                                             />
@@ -520,7 +634,7 @@ const Product = () => {
                                     SỬA SẢN PHẨM
                                     <button
                                         type="button"
-                                        onClick={() => {showAlter(false); clearF()}}
+                                        onClick={() => { showAlter(false); clearF() }}
                                         className="absolute right-4 text-gray-400 hover:text-gray-500"
                                     >
                                         <span className="absolute -inset-0.5" />
@@ -546,7 +660,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 value={fname}
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập tên sản phẩm"
                                                 onChange={(e) => setFname(e.target.value)}
                                             />
                                         </div>
@@ -560,14 +674,21 @@ const Product = () => {
                                             >
                                                 Loại sản phẩm
                                             </label>
-                                            <input
+                                            <select
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
-                                                type="text"
                                                 value={fproducttype}
-                                                placeholder="Nhập loại sản phẩm"
                                                 onChange={(e) => setFproducttype(e.target.value)}
-                                            />
+                                            >
+                                                <option value="" disabled>
+                                                    Chọn loại sản phẩm
+                                                </option>
+                                                {listProductTypeee.map((type, index) => (
+                                                    <option key={index} value={type.Name}>
+                                                        {type.Name}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
 
@@ -603,7 +724,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 value={fprice}
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập giá"
                                                 onChange={(e) => setFprice(e.target.value)}
                                             />
                                         </div>
@@ -622,7 +743,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 value={fpricesale}
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập giá sale"
                                                 onChange={(e) => setFpricesale(e.target.value)}
                                             />
                                         </div>
@@ -641,7 +762,7 @@ const Product = () => {
                                                 id="grid-name"
                                                 type="text"
                                                 value={fquantity}
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập số lượng"
                                                 onChange={(e) => setFquantity(e.target.value)}
                                             />
                                         </div>

@@ -17,4 +17,5 @@ export {default as ProductType} from './ProductType'
 export {default as Product} from './Product'
 export {default as Setting} from './Setting'
 export {default as ProductDetails} from './ProductDetails'
-
+export {default as Order} from './Order'
+export {default as ContactA} from './ContactA'

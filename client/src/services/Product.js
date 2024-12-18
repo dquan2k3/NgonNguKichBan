@@ -1,13 +1,13 @@
-
 import axiosConfig from '../axiosConfig'
 
 
 
-export const apiLoadProduct = async (id) => {
+export const apiLoadProduct = async ({page, limit, typeselect, sapxep, minPrice, maxPrice}) => {
   try {
     const response = await axiosConfig({
       method: 'post',
-      url: '/api/loadProduct'
+      url: '/api/loadProduct',
+      data: {page, limit, typeselect, sapxep, minPrice, maxPrice}
     })
     return response
   }

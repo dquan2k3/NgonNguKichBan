@@ -84,7 +84,7 @@ const Register = () => {
 
                         <div className="space-y-2">
                             <input
-                                type="re_password"
+                                type="password"
                                 name="repassword"
                                 value={payload.repassword}
                                 onChange={handleInputChange}

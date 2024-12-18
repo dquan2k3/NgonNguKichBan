@@ -215,7 +215,7 @@ const AddProductType = () => {
                         Thành công
                     </div>
                 </p>
-                <button onClick={() => showAdd(true)} class="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-xl px-4 rounded text-center h-9 mr-3">
+                <button onClick={() => showAdd(true)} className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-xl px-4 rounded text-center h-9 mr-3">
                     Thêm
                 </button>
             </div>
@@ -236,14 +236,14 @@ const AddProductType = () => {
                                 <th className="border border-b-slate-300 font-normal text-[18px]">{item.Describe}</th>
                                 <th className="border border-b-slate-300 flex items-center justify-center px-6 py-4">
                                     <div className="font-normal text-[18px] gap-3 flex items-center justify-end mx-auto w-[135px]">
-                                        <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Describe); setFname(item.Name); setFdescribe(item.Describe); showAlter(true) }} href="#" class="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
+                                        <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Describe); setFname(item.Name); setFdescribe(item.Describe); showAlter(true) }} href="#" className="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
                                         <div
                                         key={index}
                                         ref={(el) => (divRefs.current[index] = el)}
                                          onClick={() => {
                                             setIsdelete(item._id);
                                             sClickdelete();
-                                        }} id={`d${item._id}`} href="#" class={`cursor-pointer select-none font-medium border-[3px] ${isdelete == item._id ? "w-36" : "w-16"} h-10 flex text-center justify-center items-center transition-all duration-300 rounded-2xl border-red-600 text-red-600 dark:text-red-500 hover:text-white hover:bg-red-500`}>Xóa</div>
+                                        }} id={`d${item._id}`} href="#" className={`cursor-pointer select-none font-medium border-[3px] ${isdelete == item._id ? "w-36" : "w-16"} h-10 flex text-center justify-center items-center transition-all duration-300 rounded-2xl border-red-600 text-red-600 dark:text-red-500 hover:text-white hover:bg-red-500`}>Xóa</div>
                                     </div>
                                 </th>
                             </tr>
@@ -305,7 +305,7 @@ const AddProductType = () => {
 
                         <div className="text-red-600 w-full">{isErr ? isErr : ''}</div>
 
-                        <button type="submit" class="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
+                        <button type="submit" className="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
                             Thêm
                         </button>
                     </form>
@@ -371,7 +371,7 @@ const AddProductType = () => {
 
                         <div className="text-red-600 w-full">{isErr ? isErr : ''}</div>
 
-                        <button type="submit" class="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
+                        <button type="submit" className="border-2 uppercase font-medium w-[50%] flex items-center justify-center border-blue-600 rounded-lg px-3 py-2 text-gray-600 cursor-pointer hover:bg-blue-600 hover:text-blue-200">
                             Sửa
                         </button>
                     </form>

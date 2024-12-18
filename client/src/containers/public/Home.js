@@ -41,6 +41,7 @@ const Home = () => {
     dispatch(actions.loadBannerhome())
       .then((response) => {
         if (response && response.data.success) {
+          // console.log("Banner : ", response.data.list)
           setBanner(response.data.list)
         }
       })
@@ -50,7 +51,7 @@ const Home = () => {
     dispatch(actions.renderSaleProduct())
       .then((response) => {
         if (response && response.data.success) {
-          console.log(response.data.saleproducts)
+          // console.log(response.data.saleproducts)
           setSaleproducts(response.data.saleproducts)
         }
         else {
@@ -97,65 +98,71 @@ const Home = () => {
     return number.toLocaleString("en-US");
   };
 
-
-
-  useEffect(() => {
-    const list = listRef.current;
-    const items = list.querySelectorAll(".item");
-    const dots = list.querySelectorAll(".dots li");
-
-    itemsRef.current = items;
-    dotsRef.current = dots;
-
-    const nextButton = document.getElementById("next");
-    const prevButton = document.getElementById("prev");
-
-    const handleNext = () => {
-      setActive((prev) => (prev + 1 < items.length ? prev + 1 : 0));
-    };
-
-    const handlePrev = () => {
-      setActive((prev) => (prev - 1 >= 0 ? prev - 1 : items.length - 1));
-    };
-
-    nextButton.addEventListener("click", handleNext);
-    prevButton.addEventListener("click", handlePrev);
-
-    refreshIntervalRef.current = setInterval(() => {
-      handleNext();
-    }, 3000);
-
-    return () => {
-      nextButton.removeEventListener("click", handleNext);
-      prevButton.removeEventListener("click", handlePrev);
-      clearInterval(refreshIntervalRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    const list = listRef.current;
-    const items = itemsRef.current;
-    const dots = dotsRef.current;
-
-    if (items[active]) {
-      const offsetLeft = items[active].offsetLeft;
-      list.style.left = -offsetLeft + "px";
-
-      dots.forEach((dot, index) => {
-        if (index === active) {
-          dot.classList.add("active");
-        } else {
-          dot.classList.remove("active");
-        }
+  const handleNext = () => {
+    const list = listRef.current; // Đảm bảo list đã được khởi tạo
+    if (list) { // Kiểm tra nếu list đã có giá trị
+      const items = list.querySelectorAll(".item");
+      setActive((prev) => {
+        return prev + 1 < items.length ? prev + 1 : 0; // Tính toán giá trị mới
       });
-
-      clearInterval(refreshIntervalRef.current);
-      refreshIntervalRef.current = setInterval(() => {
-        document.getElementById("next").click();
-      }, 5000);
+    } else {
+      console.warn("List is not initialized yet!");
     }
-  }, [active]);
+  };
 
+  const handlePrev = () => {
+    const list = listRef.current; // Đảm bảo listRef đã được khởi tạo
+    if (list) { // Kiểm tra nếu list đã có giá trị
+      const items = list.querySelectorAll(".item");
+      setActive((prev) => {
+        return prev - 1 >= 0 ? prev - 1 : items.length - 1; // Tính toán giá trị mới cho "prev"
+      });
+    } else {
+      console.warn("List is not initialized yet!");
+    }
+  };
+
+
+  useEffect(() => {
+    const list = listRef.current;
+    const dots = dotsRef.current;
+  
+    // Hàm polling để kiểm tra phần tử
+    const pollingInterval = setInterval(() => {
+      const items = list.querySelectorAll(".item");
+  
+      if (items.length > 0 && items[active]) {
+        const offsetLeft = items[active].offsetLeft;
+        list.style.left = -offsetLeft + "px";
+  
+        // Cập nhật các dots
+        dots.forEach((dot, index) => {
+          if (index === active) {
+            dot.classList.add("active");
+          } else {
+            dot.classList.remove("active");
+          }
+        });
+  
+        // Dừng polling sau khi kiểm tra thành công
+        clearInterval(pollingInterval);
+  
+        // Cập nhật lại interval để thực hiện tự động chuyển slide
+        clearInterval(refreshIntervalRef.current);
+        refreshIntervalRef.current = setInterval(() => {
+          document.getElementById("next")?.click(); // Kiểm tra nếu nút tồn tại
+        }, 5000);
+      }
+    }, 100); // Kiểm tra mỗi 100ms
+  
+    // Cleanup polling interval khi component unmount hoặc active thay đổi
+    return () => {
+      clearInterval(pollingInterval); // Dừng polling khi không cần nữa
+      clearInterval(refreshIntervalRef.current); // Dừng auto slide interval
+    };
+  }, [active]); // Chạy lại khi active thay đổi
+  
+  
   const handleDotClick = (index) => {
     setActive(index);
   };
@@ -197,7 +204,7 @@ const Home = () => {
   return (
     <div>
       <Header />
-      <BHeader class="" />
+      <BHeader className="" />
       <div className="w-full h-auto flex items-center flex-col space-y-1">
         <div id="banner" className="relative overflow-hidden max-w-full w-[1100px] h-[620px] m-3">
           <div className="slider relative overflow-hidden w-full h-full">
@@ -210,8 +217,8 @@ const Home = () => {
             </div>
 
             <div className="buttons absolute top-1/2 left-5 w-[96%] flex justify-between transform -translate-y-1/2">
-              <button id="prev" className="flex justify-center items-center duration-500 transform transition-all text-center w-12 h-12 bg-white bg-opacity-50 rounded-full text-white font-bold text-xl hover:bg-gray-300 hover:text-3xl hover:text-gray-700 hover:translate-x-[-4px]">‹</button>
-              <button id="next" className="flex justify-center items-center duration-500 transform transition-all text-center w-12 h-12 bg-white bg-opacity-50 rounded-full text-white font-bold text-xl hover:bg-gray-300 hover:text-3xl hover:text-gray-700 hover:translate-x-[4px]">›</button>
+              <button id="prev" onClick={() => handlePrev()} className="flex justify-center items-center duration-500 transform transition-all text-center w-12 h-12 bg-white bg-opacity-50 rounded-full text-white font-bold text-xl hover:bg-gray-300 hover:text-3xl hover:text-gray-700 hover:translate-x-[-4px]">‹</button>
+              <button id="next" onClick={() => handleNext()} className="flex justify-center items-center duration-500 transform transition-all text-center w-12 h-12 bg-white bg-opacity-50 rounded-full text-white font-bold text-xl hover:bg-gray-300 hover:text-3xl hover:text-gray-700 hover:translate-x-[4px]">›</button>
             </div>
 
             <ul className="dots flex justify-center absolute bottom-2 left-0 w-full">
@@ -249,64 +256,64 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div class="flex flex-wrap justify-between items-start gap-6 p-14 w-[1100px] h-[200px] mx-auto bg-gray-100 rounded-lg shadow-lg">
+        <div className="flex flex-wrap justify-between items-start gap-6 p-14 w-[1100px] h-[200px] mx-auto bg-gray-100 rounded-lg shadow-lg">
 
-          <div class="flex flex-col items-center text-center space-y-2">
-            <div class="relative w-12 h-12">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="relative w-12 h-12">
               <img
-                class="w-full h-full"
+                className="w-full h-full"
                 src="//theme.hstatic.net/200000065946/1001264503/14/vice_item_1_thumb.png?v=546"
                 alt="Giao Hàng &amp; Lắp Đặt"
               />
             </div>
-            <div class="text">
-              <div class="text-lg font-semibold">Giao Hàng &amp; Lắp Đặt</div>
-              <div class="text-sm text-gray-500">Miễn Phí</div>
+            <div className="text">
+              <div className="text-lg font-semibold">Giao Hàng &amp; Lắp Đặt</div>
+              <div className="text-sm text-gray-500">Miễn Phí</div>
             </div>
           </div>
 
 
-          <div class="flex flex-col items-center text-center space-y-2">
-            <div class="relative w-12 h-12">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="relative w-12 h-12">
               <img
-                class="w-full h-full"
+                className="w-full h-full"
                 src="//theme.hstatic.net/200000065946/1001264503/14/vice_item_2_thumb.png?v=546"
                 alt="Đổi Trả 1 - 1"
               />
             </div>
-            <div class="text">
-              <div class="text-lg font-semibold">Đổi Trả 1 - 1</div>
-              <div class="text-sm text-gray-500">Miễn Phí</div>
+            <div className="text">
+              <div className="text-lg font-semibold">Đổi Trả 1 - 1</div>
+              <div className="text-sm text-gray-500">Miễn Phí</div>
             </div>
           </div>
 
 
-          <div class="flex flex-col items-center text-center space-y-2">
-            <div class="relative w-12 h-12">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="relative w-12 h-12">
               <img
-                class="w-full h-full"
+                className="w-full h-full"
                 src="//theme.hstatic.net/200000065946/1001264503/14/vice_item_3_thumb.png?v=546"
                 alt="Bảo Hành 2 Năm"
               />
             </div>
-            <div class="text">
-              <div class="text-lg font-semibold">Bảo Hành 2 Năm</div>
-              <div class="text-sm text-gray-500">Miễn Phí</div>
+            <div className="text">
+              <div className="text-lg font-semibold">Bảo Hành 2 Năm</div>
+              <div className="text-sm text-gray-500">Miễn Phí</div>
             </div>
           </div>
 
 
-          <div class="flex flex-col items-center text-center space-y-2">
-            <div class="relative w-12 h-12">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <div className="relative w-12 h-12">
               <img
-                class="w-full h-full"
+                className="w-full h-full"
                 src="//theme.hstatic.net/200000065946/1001264503/14/vice_item_4_thumb.png?v=546"
                 alt="Tư Vấn Thiết Kế"
               />
             </div>
-            <div class="text">
-              <div class="text-lg font-semibold">Tư Vấn Thiết Kế</div>
-              <div class="text-sm text-gray-500">Miễn Phí</div>
+            <div className="text">
+              <div className="text-lg font-semibold">Tư Vấn Thiết Kế</div>
+              <div className="text-sm text-gray-500">Miễn Phí</div>
             </div>
           </div>
         </div>

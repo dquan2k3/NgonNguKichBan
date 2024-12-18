@@ -2,11 +2,12 @@ import axiosConfig from '../axiosConfig'
 
 
 
-export const apiLoadProductType = async () => {
+export const apiLoadProductType = async ({page}) => {
   try {
     const response = await axiosConfig({
       method: 'post',
-      url: '/api/loadProductType'
+      url: '/api/loadProductType',
+      data: {page}
     })
     return response
   }

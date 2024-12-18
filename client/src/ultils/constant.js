@@ -15,6 +15,8 @@ export const path={
     PRODUCT: '/PRODUCT',
     SETTING: '/SETTING',
     PRODUCTDETAILS: 'PRODUCTDETAILS',
+    ORDER: 'ORDER',
+    CONTACTA: 'CONTACTA'
        
 
 }

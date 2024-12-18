@@ -14,8 +14,10 @@ const CartItemSchema = new mongoose.Schema({
 const CartSchema = new mongoose.Schema({
     User: String,
     Address: String,
+    Account: { type: String, default: 'None' },
     Total: { type: Number, default: 0 },
     Items: [CartItemSchema],
+    isDone: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
 });
 

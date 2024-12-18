@@ -79,7 +79,7 @@ const Login = () => {
 
             {/* Submit button */}
             <p className='text-red-600 pb-3'>{error}</p>
-            <button class="w-full bg-gradient-to-r from-purple-400 to-purple-600 text-white py-3 rounded-lg hover:bg-opacity-80 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:from-blue-300 hover:to-blue-500 duration-300">
+            <button id='login' type='submit' class="w-full bg-gradient-to-r from-purple-400 to-purple-600 text-white py-3 rounded-lg hover:bg-opacity-80 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:from-blue-300 hover:to-blue-500 duration-300">
               Đăng nhập
             </button>
           </form>
