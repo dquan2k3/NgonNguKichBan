@@ -43,11 +43,11 @@ export const removeFromCart = async (req, res) => {
 };
 
 export const cod = async (req, res) => {
-  const { user, address, keyy } = req.body;
-  console.log('user:', user);   // Kiểm tra giá trị của user
-  console.log('address:', address);  // Kiểm tra giá trị của address
-  console.log('key:', keyy);
-  const response = await CartService.cod(req.session, user, address, keyy);
+  const { user, address, keyy, giamgia } = req.body;
+  // console.log('user:', user);   // Kiểm tra giá trị của user
+  // console.log('address:', address);  // Kiểm tra giá trị của address
+  // console.log('key:', keyy);
+  const response = await CartService.cod(req.session, user, address, keyy, giamgia);
   console.log(response)
   if (response.success) {
     return res.json({ success: true, cart: response.cart });

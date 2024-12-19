@@ -3,12 +3,12 @@ import axiosConfig from '../axiosConfig'
 
 
 
-export const apiLoadOrder = async ({page}) => {
+export const apiLoadOrder = async ({page, user}) => {
   try {
     const response = await axiosConfig({
       method: 'post',
       url: '/api/loadOrder',
-      data: {page}
+      data: {page, user}
     })
     return response
   }

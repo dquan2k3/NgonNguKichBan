@@ -1,110 +1,138 @@
 import { ProductModel } from '../Model/product';
 import { ObjectId } from 'mongodb';
+import { RateModels } from '../Model/rate';
+import { WishModels } from '../Model/Wish';
 require('dotenv').config()
 const crypto = require('crypto');
 const cloudinary = require('../config/cloudinaryConfig')
 const streamifier = require('streamifier');
+const unidecode = require('unidecode');
 
-export const loadProduct = async ({ page = 1, limit = 7, typeselect = 'Loại', sapxep = 'Sắp xếp', minPrice = -1, maxPrice = -1 }) => {
+export const loadProduct = async ({ page = 1, limit = 7, typeselect = 'Loại', sapxep = 'Sắp xếp', minPrice = -1, maxPrice = -1, name = '' }) => {
   try {
-    if (typeselect === 'Loại' && sapxep === 'Sắp xếp' && minPrice === -1 && maxPrice === -1) {
-      const skip = (page - 1) * limit;
-      const sortOrder = { createdAt: -1 }; // Sắp xếp theo ngày tạo, giảm dần
+    if (page !== -1) {
+      if (typeselect === 'Loại' && sapxep === 'Sắp xếp' && minPrice === -1 && maxPrice === -1 && name === '') {
+        const skip = (page - 1) * limit;
+        const sortOrder = { createdAt: -1 }; // Sắp xếp theo ngày tạo, giảm dần
 
-      // Sử dụng aggregate để lấy danh sách sản phẩm và giá trị PriceSale min/max
-      const [result] = await ProductModel.aggregate([
-        {
-          $facet: {
-            products: [
-              { $sort: sortOrder },
-              { $skip: skip },
-              { $limit: limit },
-            ],
-            priceStats: [
-              { $group: { _id: null, minPriceSale: { $min: "$PriceSale" }, maxPriceSale: { $max: "$PriceSale" } } },
-            ],
+        // Sử dụng aggregate để lấy danh sách sản phẩm và giá trị PriceSale min/max
+        const [result] = await ProductModel.aggregate([
+          {
+            $facet: {
+              products: [
+                { $sort: sortOrder },
+                { $skip: skip },
+                { $limit: limit },
+              ],
+              priceStats: [
+                { $group: { _id: null, minPriceSale: { $min: "$PriceSale" }, maxPriceSale: { $max: "$PriceSale" } } },
+              ],
+            },
           },
-        },
-      ]);
+        ]);
 
-      const list = result.products;
-      const priceStats = result.priceStats[0] || { minPriceSale: null, maxPriceSale: null };
+        const list = result.products;
+        const priceStats = result.priceStats[0] || { minPriceSale: null, maxPriceSale: null };
 
-      // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
-      const totalContacts = await ProductModel.countDocuments();
-      const totalPages = Math.ceil(totalContacts / limit);
+        // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
+        const totalContacts = await ProductModel.countDocuments();
+        const totalPages = Math.ceil(totalContacts / limit);
 
-      return { success: true, list, totalPages, minPrice: priceStats.minPriceSale, maxPrice: priceStats.maxPriceSale };
+        return { success: true, list, totalPages, minPrice: priceStats.minPriceSale, maxPrice: priceStats.maxPriceSale };
+      }
+      else {
+        let sortOrder = {};
+        let filter = {};
+
+        // Xác định thứ tự sắp xếp dựa trên giá trị của 'sapxep'
+        if (sapxep === 'Giá thấp đến cao') {
+          sortOrder = { PriceSale: 1 }; // Tăng dần
+        } else if (sapxep === 'Giá cao đến thấp') {
+          sortOrder = { PriceSale: -1 }; // Giảm dần
+        } else {
+          sortOrder = { createdAt: -1 }; // Giảm dần theo ngày tạo
+        }
+
+        // Thêm điều kiện lọc nếu 'typeselect' khác 'Loại' và không rỗng
+        if (typeselect && typeselect !== 'Loại') {
+          filter.ProductType = typeselect;
+        }
+
+        if (name && name !== '') {
+          const normalizedSearchName = unidecode(name).toLowerCase();
+          filter.NameToSearch = { $regex: normalizedSearchName, $options: 'i' }; // Tìm kiếm không phân biệt chữ hoa chữ thường
+        }
+
+        const priceStatsMM = await ProductModel.aggregate([
+          { $match: filter }, // Lọc theo điều kiện
+          {
+            $group: {
+              _id: null,
+              minPrice: { $min: "$PriceSale" },
+              maxPrice: { $max: "$PriceSale" },
+            },
+          },
+        ]);
+
+        // Kiểm tra và gán giá trị minPrice và maxPrice
+        let minPriceMM = null;
+        let maxPriceMM = null;
+        if (priceStatsMM.length > 0) {
+          minPriceMM = priceStatsMM[0].minPrice;
+          maxPriceMM = priceStatsMM[0].maxPrice;
+        }
+
+        // Thêm điều kiện lọc theo khoảng giá nếu 'minPrice' và 'maxPrice' khác -1
+        if (minPrice !== -1 || maxPrice !== -1) {
+          filter.PriceSale = {};
+          if (minPrice !== -1) {
+            filter.PriceSale.$gte = minPrice; // Giá lớn hơn hoặc bằng minPrice
+          }
+          if (maxPrice !== -1) {
+            filter.PriceSale.$lte = maxPrice; // Giá nhỏ hơn hoặc bằng maxPrice
+          }
+        }
+
+        const skip = (page - 1) * limit;
+
+        const list = await ProductModel.find(filter)
+          .sort(sortOrder)
+          .skip(skip)
+          .limit(limit);
+
+        // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
+        const totalContacts = await ProductModel.countDocuments(filter);
+        const totalPages = Math.ceil(totalContacts / limit);
+
+        return {
+          success: true,
+          list,
+          totalPages,
+          minPrice: minPriceMM,
+          maxPrice: maxPriceMM,
+        };
+
+
+      }
     }
     else {
-      let sortOrder = {};
-      let filter = {};
-
-      // Xác định thứ tự sắp xếp dựa trên giá trị của 'sapxep'
-      if (sapxep === 'Giá thấp đến cao') {
-        sortOrder = { PriceSale: 1 }; // Tăng dần
-      } else if (sapxep === 'Giá cao đến thấp') {
-        sortOrder = { PriceSale: -1 }; // Giảm dần
-      } else {
-        sortOrder = { createdAt: -1 }; // Giảm dần theo ngày tạo
-      }
-
-      // Thêm điều kiện lọc nếu 'typeselect' khác 'Loại' và không rỗng
-      if (typeselect && typeselect !== 'Loại') {
-        filter.ProductType = typeselect;
-      }
-
-      const priceStatsMM = await ProductModel.aggregate([
-        { $match: filter }, // Lọc theo điều kiện
+      const result = await ProductModel.aggregate([
         {
           $group: {
-            _id: null,
-            minPrice: { $min: "$PriceSale" },
-            maxPrice: { $max: "$PriceSale" },
+            _id: null, 
+            totalQuantity: { $sum: "$Quantity" }, 
           },
         },
       ]);
 
-      // Kiểm tra và gán giá trị minPrice và maxPrice
-      let minPriceMM = null;
-      let maxPriceMM = null;
-      if (priceStatsMM.length > 0) {
-        minPriceMM = priceStatsMM[0].minPrice;
-        maxPriceMM = priceStatsMM[0].maxPrice;
-      }
-
-      // Thêm điều kiện lọc theo khoảng giá nếu 'minPrice' và 'maxPrice' khác -1
-      if (minPrice !== -1 || maxPrice !== -1) {
-        filter.PriceSale = {};
-        if (minPrice !== -1) {
-          filter.PriceSale.$gte = minPrice; // Giá lớn hơn hoặc bằng minPrice
-        }
-        if (maxPrice !== -1) {
-          filter.PriceSale.$lte = maxPrice; // Giá nhỏ hơn hoặc bằng maxPrice
-        }
-      }
-
-      const skip = (page - 1) * limit;
-      
-      const list = await ProductModel.find(filter)
-      .sort(sortOrder)
-      .skip(skip)
-      .limit(limit);
-
-      // Đếm tổng số sản phẩm thỏa mãn điều kiện lọc
-      const totalContacts = await ProductModel.countDocuments(filter);
-      const totalPages = Math.ceil(totalContacts / limit);
-
+      // Trả về tổng (nếu có kết quả)
+      const productCount = result[0]?.totalQuantity || 0;
       return {
         success: true,
-        list,
-        totalPages,
-        minPrice: minPriceMM,
-        maxPrice: maxPriceMM,
+        productCount: productCount
       };
-
-
     }
+
   }
   catch (error) {
     console.log(error)
@@ -324,5 +352,84 @@ export const renderSaleProduct = async () => {
   } catch (error) {
     console.error('Error fetching discounted products:', error);
     return { success: false, error: error.message };
+  }
+}
+
+
+export const rate = async ({ rate, detail, user, id }) => {
+  try {
+    const newRate = new RateModels({ Rate: rate, Detail: detail, User: user, ProductId: id });
+    await newRate.save();
+    return { success: true, err: 0, msg: 'Đánh giá thành công' };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
+  }
+};
+
+export const loadRate = async ({ id }) => {
+  try {
+    const list = await RateModels.find({ ProductId: id })
+      .sort({ createdAt: -1 })
+    return { success: true, list: list };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
+  }
+}
+
+export const wish = async ({ user, id, unwish }) => {
+  try {
+    if (unwish) {
+      const deletedWish = await WishModels.findOneAndDelete({ User: user, ProductId: id });
+
+      if (!deletedWish) {
+        return { success: true, err: 1, msg: 'Không tìm thấy sản phẩm trong danh sách yêu thích!' };
+      }
+
+      return { success: true, isChange: true, err: 0, msg: 'Xóa sản phẩm khỏi danh sách yêu thích thành công!' };
+    }
+    const existingWish = await WishModels.findOne({ User: user, ProductId: id });
+
+    if (existingWish) {
+      return { success: true, err: 1, msg: 'Sản phẩm đã yêu thích rồi!' };
+    }
+    const newWish = new WishModels({ User: user, ProductId: id });
+    await newWish.save();
+
+    return { success: true, isChange: true, err: 0, msg: 'Yêu thích thành công' };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
+  }
+};
+
+export const checkwish = async ({ user, id }) => {
+  try {
+    const existingWish = await WishModels.findOne({ User: user, ProductId: id });
+    console.log(existingWish)
+    if (existingWish) {
+      return { success: true, isWished: true, msg: 'Sản phẩm đã yêu thích rồi!' };
+    }
+    return { success: true, isWished: false, msg: 'Chưa yêu thích' };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
+  }
+};
+
+export const loadWish = async ({ user }) => {
+  try {
+    const list = await WishModels.find({ User: user })
+      .sort({ createdAt: -1 })
+    return { success: true, list: list };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
+  }
+}
+
+export const loadProductByWish = async ({ wis }) => {
+  try {
+    const productIds = wis.map((wish) => wish.ProductId);
+    const products = await ProductModel.find({ _id: { $in: productIds } });
+    return { success: true, list: products };
+  } catch (error) {
+    return { success: false, err: 3, msg: error.message || error };
   }
 }

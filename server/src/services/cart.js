@@ -1,3 +1,5 @@
+import { ProductModel } from '../Model/product';
+
 const Cart = require('../Model/cart');
 
 export const getCart = async (session) => {
@@ -62,10 +64,11 @@ export const removeFromCart = async (session, id) => {
   }
 };
 
-export const cod = async (session, user, address, keyy) => {
-  console.log('useryyy:', user);   // Kiểm tra giá trị của user
-  console.log('addressyyy:', address);  // Kiểm tra giá trị của address
-  console.log('keyyyy:', keyy);
+export const cod = async (session, user, address, keyy, giamgia) => {
+      console.log(user, address, keyy, giamgia)
+  // console.log('useryyy:', user);   // Kiểm tra giá trị của user
+  // console.log('addressyyy:', address);  // Kiểm tra giá trị của address
+  // console.log('keyyyy:', keyy);
   const { cart } = session;
 
   if (!cart || !Array.isArray(cart)) {
@@ -84,12 +87,33 @@ export const cod = async (session, user, address, keyy) => {
       amount: item.product.Amount,
     }));
 
+    for (const item of cartItems) {
+      // Tìm sản phẩm theo ID và cập nhật số lượng
+      const updatedProduct = await ProductModel.findOneAndUpdate(
+        { _id: item.productId },
+        { $inc: { Quantity: -item.amount } }, // Giảm số lượng
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      // Kiểm tra nếu số lượng sau khi cập nhật nhỏ hơn 0
+      if (updatedProduct.Quantity < 0) {
+        throw new Error(`Sản phẩm ${item.name} không đủ số lượng trong kho.`);
+      }
+    }
+
     const newCart = new Cart({
       User: user,
       Address: address,
       Account: keyy,
+      Giamgia: giamgia,
       Items: cartItems,
     });
+
+    console.log(giamgia)
+
     await newCart.save()
     session.cart = [];
     return { success: true, cart: session.cart }

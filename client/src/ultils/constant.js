@@ -16,7 +16,8 @@ export const path={
     SETTING: '/SETTING',
     PRODUCTDETAILS: 'PRODUCTDETAILS',
     ORDER: 'ORDER',
-    CONTACTA: 'CONTACTA'
-       
+    CONTACTA: 'CONTACTA',
+    ACCOUNT: 'ACCOUNT',
+    VOUCHER: 'VOUCHER'       
 
 }

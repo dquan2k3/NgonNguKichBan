@@ -1,11 +1,11 @@
 import * as ProductService from '../services/product'
 
 export const loadProduct = async (req, res) => {
-    const { page, limit, typeselect, sapxep, minPrice, maxPrice } = req.body;
-    const data = await ProductService.loadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice});
+    const { page, limit, typeselect, sapxep, minPrice, maxPrice, name } = req.body;
+    const data = await ProductService.loadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice, name});
     if(data.success){
         
-        return res.json({ success: true, list: data.list, totalPages: data.totalPages, minPrice: data.minPrice, maxPrice: data.maxPrice });
+        return res.json({ success: true, list: data.list, totalPages: data.totalPages, minPrice: data.minPrice, maxPrice: data.maxPrice, productCount: data.productCount });
     }
     else{
         res.status(400).json({ success: false, err: data.err, msg: data.msg });
@@ -89,5 +89,77 @@ export const renderSaleProduct = async(req, res) =>{
     const response = await ProductService.renderSaleProduct()
     return res.json(response)
 }
+
+
+export const rate = async (req, res) => {
+    const { rate, detail, user, id } = req.body;
+    const data = await ProductService.rate({rate, detail, user, id});
+    if(data.success){
+        return res.json({ success: true, err: data.err, msg: data.msg });
+    }
+    else{
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+
+}
+
+export const loadRate = async (req, res) => {
+    const { id } = req.body;
+    const data = await ProductService.loadRate({ id });
+    if (data.success) {
+        return res.json({ success: true, list: data.list});
+    }
+    else {
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+}
+
+export const wish = async (req, res) => {
+    const { user, id, unwish } = req.body;
+    const data = await ProductService.wish({user, id, unwish});
+    if(data.success){
+        return res.json({ success: true, isChange: data.isChange, err: data.err, msg: data.msg });
+    }
+    else{
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+
+}
+
+export const checkWish = async (req, res) => {
+    const { user, id } = req.body;
+    const data = await ProductService.checkwish({user, id});
+    if(data.success){
+        return res.json({ success: true, isWished: data.isWished, msg: data.msg });
+    }
+    else{
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+
+}
+
+export const loadWish = async (req, res) => {
+    const { user } = req.body;
+    const data = await ProductService.loadWish({ user });
+    if (data.success) {
+        return res.json({ success: true, list: data.list});
+    }
+    else {
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+}
+
+export const loadProductByWish = async (req, res) => {
+    const { wis } = req.body;
+    const data = await ProductService.loadProductByWish({ wis });
+    if (data.success) {
+        return res.json({ success: true, list: data.list});
+    }
+    else {
+        res.status(400).json({ success: false, err: data.err, msg: data.msg });
+    }
+}
+
+
 
 

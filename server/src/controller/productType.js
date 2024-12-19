@@ -2,12 +2,12 @@ import * as ProductTypeService from '../services/productType'
 
 export const loadProductType = async (req, res) => {
     const { page } = req.body;
-    const data = await ProductTypeService.loadProductType({page});
-    if(data.success){
-        
+    const data = await ProductTypeService.loadProductType({ page });
+    if (data.success) {
+
         return res.json({ success: true, list: data.list, totalPages: data.totalPages });
     }
-    else{
+    else {
         res.status(400).json({ success: false, err: data.err, msg: data.msg });
     }
 
@@ -33,18 +33,18 @@ export const deleteProductType = async (req, res) => {
     const { id } = req.body;
     const response = await ProductTypeService.deleteProductType(id);
     console.log(response)
-    if(response.success){
-        
+    if (response.success) {
+
         return res.json({ success: true });
     }
-    else{
+    else {
         res.status(400).json({ success: false });
     }
 
 }
 
-export const alterProductType = async (req, res) => { 
+export const alterProductType = async (req, res) => {
     const { id, fname, fdescribe } = req.body;
     const response = await ProductTypeService.alterProductType(id, fname, fdescribe)
-    return res.json({response})
+    return res.json({ response })
 }

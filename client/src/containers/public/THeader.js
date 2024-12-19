@@ -241,7 +241,8 @@ export const Header = () => {
         </div>
 
         {isLoggedIn ? <div className="h-[30px] w-max flex item-center">
-          <h5 className="my-auto cursor-pointer text-white mx-[10px]">{user}</h5>
+          <div onClick={() => navigate('/account')} className="my-auto cursor-pointer text-white mx-[10px]">{user}
+          </div>
           <h5 onClick={() => Logout()} className="my-auto cursor-pointer text-white mx-[10px]">Đăng xuất</h5>
         </div> : <div className="h-[30px] w-max flex item-center">
           <h5 onClick={() => navigate('/login')} className="my-auto cursor-pointer text-white mx-[10px]">Đăng nhập</h5>

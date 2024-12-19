@@ -1,8 +1,8 @@
 import actionTypes from './actionTypes'
-import { apiAddProduct, apiLoadProduct, apiDeleteProduct, apiAlterProduct, apiLoadProductDetail, apiLoadRandomProduct, apiRenderHotProduct, apiRenderSaleProduct } from '../../services/Product'
+import { apiAddProduct, apiLoadProduct, apiDeleteProduct, apiAlterProduct, apiLoadProductDetail, apiLoadRandomProduct, apiRenderHotProduct, apiRenderSaleProduct, apiRate, apiLoadRate, apiWish, apiCheckWish, apiLoadWish, apiLoadProductByWish } from '../../services/Product'
 
-export const loadProduct = (page, limit, typeselect, sapxep, minPrice, maxPrice) => async () => {
-    const data = await apiLoadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice})
+export const loadProduct = (page, limit, typeselect, sapxep, minPrice, maxPrice, name) => async () => {
+    const data = await apiLoadProduct({page, limit, typeselect, sapxep, minPrice, maxPrice, name})
     return data
 }
 
@@ -44,4 +44,34 @@ export const renderHotProduct = () => async () => {
 export const renderSaleProduct = () => async() =>{
     const response = await apiRenderSaleProduct()
     return response
+}
+
+export const rate = (rate, detail, user, id) => async () => {
+    const data = await apiRate({rate, detail, user, id})
+    return data
+}
+
+export const loadRate = (id) => async () => {
+    const data = await apiLoadRate({id})
+    return data
+}
+
+export const wish = (user, id, unwish) => async () => {
+    const data = await apiWish({user, id, unwish})
+    return data
+}
+
+export const checkwish = (user, id) => async () => {
+    const data = await apiCheckWish({user, id})
+    return data
+}
+
+export const loadWish = (user) => async () => {
+    const data = await apiLoadWish({user})
+    return data
+}
+
+export const loadProductByWish = (wis) => async () => {
+    const data = await apiLoadProductByWish({wis})
+    return data
 }

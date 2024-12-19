@@ -14,6 +14,7 @@ const CartItemSchema = new mongoose.Schema({
 const CartSchema = new mongoose.Schema({
     User: String,
     Address: String,
+    Giamgia: Number,
     Account: { type: String, default: 'None' },
     Total: { type: Number, default: 0 },
     Items: [CartItemSchema],
@@ -23,11 +24,15 @@ const CartSchema = new mongoose.Schema({
 
 CartSchema.pre('save', function (next) {
     const cart = this;
+    console.log('cart', cart)
 
-    // Tính tổng tiền (giá sale x số lượng) cho từng item
+    // Tính tổng tiền (giá sale x số lượng) cho từng item, sau đó áp dụng giảm giá
     cart.Total = cart.Items.reduce((sum, item) => {
-        const itemTotal = (item.priceSale || 0) * (item.amount || 0); // Sử dụng giá giảm, nếu không có thì 0
-        return sum + itemTotal;
+        let itemTotal = (item.priceSale || 0) * (item.amount || 0); // Tính tổng tiền trước giảm giá
+        let discountAmount = itemTotal * (cart.Giamgia || 0) / 100; // Tính số tiền giảm giá nếu có (hoặc 0 nếu không có giảm giá)
+        let totalAfterDiscount = itemTotal - discountAmount; // Tổng tiền sau khi trừ giảm giá
+        console.log("itemTotal", itemTotal, "discountAmount", discountAmount, 'totalAfterDiscount', totalAfterDiscount, 'Giamgia', cart.Giamgia)
+        return sum + totalAfterDiscount; // Cộng vào tổng của giỏ hàng
     }, 0);
 
     next();

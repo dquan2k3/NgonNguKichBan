@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate  } from 'react-router-dom';
-import { ForgotPassword, Home, Login, Register, Shop, Aboutus, Contact, ShoppingCart, Dashboard, LHeader, AddProductType, ProductType, Product, Setting, ProductDetails, Order, ContactA } from './containers/public'
+import { ForgotPassword, Home, Login, Register, Shop, Aboutus, Contact, ShoppingCart, Dashboard, LHeader, AddProductType, ProductType, Product, Setting, ProductDetails, Order, ContactA, Account, Voucher } from './containers/public'
 import { path } from './ultils/constant';
 import { CartProvider } from './containers/system/cartContext';
 
@@ -27,6 +27,8 @@ function App() {
         <Route path={path.PRODUCTDETAILS} element={<ProductDetails />}></Route>
         <Route path={path.ORDER} element={<Order />}></Route>
         <Route path={path.CONTACTA} element={<ContactA />}></Route>
+        <Route path={path.ACCOUNT} element={<Account/>}></Route>
+        <Route path={path.VOUCHER} element={<Voucher/>}></Route>
       </Routes>
     </CartProvider>
   );

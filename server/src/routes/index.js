@@ -7,6 +7,7 @@ import connectDB from '../config/connectDatabase';
 import cartRouter from './cart'
 import contactRouter from './contact'
 import orderRouter from './order'
+import voucherRouter from './voucher'
 const router = express.Router()
 
 const initRoutes = (app) => {
@@ -23,6 +24,7 @@ const initRoutes = (app) => {
     app.use("/api", cartRouter);
     app.use("/api", contactRouter);
     app.use("/api", orderRouter)
+    app.use("/api", voucherRouter)
     
     app.use("/gett", (req, res) =>{
         res.send(req.session)

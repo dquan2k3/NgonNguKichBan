@@ -8,7 +8,9 @@ import { useDispatch } from 'react-redux'
 import * as actions from '../../store/actions'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
-const ProductType = () => {
+
+
+const Voucher = () => {
 
     const dispatch = useDispatch();
     const [addTypeHeigh, setAddTypeHeigh] = useState(false)
@@ -16,6 +18,7 @@ const ProductType = () => {
     const [noti, setNoti] = useState(false)
     const [name, setName] = useState('')
     const [describe, setDescribe] = useState('')
+    const [date, setDate] = useState('')
     const [listProductType, setListProductType] = useState([])
     const [isErr, setIsErr] = useState(false)
     const [fname, setFname] = useState('')
@@ -31,6 +34,8 @@ const ProductType = () => {
     const [page, setPage] = useState(1)
     const [pagelist, setPagelist] = useState([]);
     const [pagecount, setPagecount] = useState(1);
+    const [fdate, setFdate] = useState('')
+    const [fidate, setFidate] = useState('')
 
     const showNoti = () => {
         setNoti(true)
@@ -58,13 +63,14 @@ const ProductType = () => {
     }
 
     const loadProductType = async (e) => {
-        dispatch(actions.loadProductType(page))
+        dispatch(actions.loadvoucher(page))
             .then((response) => {
-                if (response.data.success) {
+                if (response && response.data.success) {
                     const newList = Array.from({ length: response.data.totalPages }, (_, i) => i + 1);
                     setPagelist(newList);
                     setPagecount(response.data.totalPages)
                     setListProductType(response.data.list)
+                    console.log(response.data.list)
                 }
                 else {
                     console.log('Loi')
@@ -76,7 +82,7 @@ const ProductType = () => {
     useEffect(() => {
         loadProductType();
 
-        const pd = document.getElementById('productType');
+        const pd = document.getElementById('voucher');
         if (pd) {
             pd.classList.add('!text-purple-600', '!bg-white');
         }
@@ -86,12 +92,15 @@ const ProductType = () => {
     const addProductType = async (e) => {
         e.preventDefault()
 
-        dispatch(actions.addProductType({ name, describe }))
+        dispatch(actions.addvoucher({ name, describe, date }))
             .then((response) => {
                 console.log(response);
                 if (response.success) {
                     hideAll()
                     showNoti()
+                    setDescribe('')
+                    setName('')
+                    setDate('')
                     loadProductType()
                 }
                 else {
@@ -109,7 +118,7 @@ const ProductType = () => {
     }
 
     const deleteProductType = async () => {
-        dispatch(actions.deleteProductType({ id: isdelete }))
+        dispatch(actions.deletevoucher({ id: isdelete }))
             .then((response) => {
                 if (response.data.success) {
                     showNoti()
@@ -210,7 +219,7 @@ const ProductType = () => {
     const alterProductType = async (e) => {
         e.preventDefault()
         console.log(id, ',', fname, ',', fdescribe, ',', finame, ',', fidescribe)
-        dispatch(actions.alterProductType({ id, fname, fdescribe }))
+        dispatch(actions.altervoucher({ id, fname, fdescribe , fdate}))
             .then((response) => {
                 console.log(response.data.response)
                 if (response.data.response.success) {
@@ -232,7 +241,7 @@ const ProductType = () => {
                 <div name='task' className='m-3'>
                     <div className="">
                         <div className="text-[28px] font-medium pl-7 pt-2 bg-gray-300 border border-gray-400 rounded-t-xl flex justify-between">
-                            <div className=' relative'  >LOẠI SẢN PHẨM
+                            <div className=' relative'>MÃ GIẢM GIÁ
                                 <div className={`bg-green-400 w-52 ${noti ? 'max-h-10' : 'max-h-0'} z-20 overflow-hidden flex h-10 absolute text-white ease-in-out font-semibold pl-2 rounded-b-lg transition-all duration-500`}>
                                     <div className="pr-3"><FontAwesomeIcon icon={faCheck} /></div>
                                     Thành công
@@ -247,8 +256,9 @@ const ProductType = () => {
                             <table className="w-full border-separate border-spacing-0">
                                 <thead className='bg-gray-200 sticky -top-1 z-10 '>
                                     <tr className="w-full">
-                                        <th className="border border-b-blue-900 text-[20px] w-[25%]">Tên loại sản phẩm</th>
-                                        <th className="border border-b-blue-900 text-[20px] w-[50%]">Mô tả</th>
+                                        <th className="border border-b-blue-900 text-[20px] w-[25%]">Mã giảm giá</th>
+                                        <th className="border border-b-blue-900 text-[20px] w-[25%]">Phần trăm</th>
+                                        <th className="border border-b-blue-900 text-[20px] w-[25%]">Hạn sử dụng</th>
                                         <th className="border border-b-blue-900 text-[20px] w-[25%]">Hành động</th>
                                     </tr>
                                 </thead>
@@ -256,10 +266,11 @@ const ProductType = () => {
                                     {listProductType.map((item, index) => (
                                         <tr key={item._id} className=" py-auto h-16">
                                             <th className="border border-b-slate-300 font-normal text-[18px]">{item.Name}</th>
-                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.Describe}</th>
+                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.Phantram}</th>
+                                            <th className="border border-b-slate-300 font-normal text-[18px]">{item.Date}</th>
                                             <th className="border border-b-slate-300 flex items-center justify-center px-6 py-4">
                                                 <div className="font-normal text-[18px] gap-3 flex items-center justify-end mx-auto w-[135px]">
-                                                    <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Describe); setFname(item.Name); setFdescribe(item.Describe); showAlter("true") }} href="#" className="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
+                                                    <div id={`e${item._id}`} onClick={() => { setId(item._id); setFiname(item.Name); setFidescribe(item.Phantram); setFdate(item.Date); setFidate(item.Date); setFname(item.Name); setFdescribe(item.Phantram); showAlter("true") }} href="#" className="cursor-pointer select-none font-medium border-[3px] px-3 py-1 rounded-2xl border-blue-600 text-blue-600 dark:text-blue-500 hover:text-white hover:bg-blue-500">Sửa</div>
                                                     <div
                                                         key={index}
                                                         ref={(el) => (divRefs.current[index] = el)}
@@ -364,7 +375,7 @@ const ProductType = () => {
                         <div name='popup_add' className={` ${addTypeHeigh ? "h-screen" : "h-0"} bg-slate-600 z-30 bg-blur-100 transition-all duration-100 flex justify-center items-center flex-col top-0 left-0 bg-opacity-45 fixed w-full`}>
                             <div className={`${addTypeHeigh ? "visable" : "hidden"} pb-8 w-[850px] bg-white rounded-lg flex flex-col items-center`}>
                                 <div className="w-full h-[70px] bg-slate-300 relative rounded-t-lg flex justify-center items-center text-[28px] font-semibold">
-                                    THÊM LOẠI SẢN PHẨM
+                                    THÊM MÃ GIẢM GIÁ
                                     <button
                                         type="button"
                                         onClick={() => showAlter(false)}
@@ -382,13 +393,14 @@ const ProductType = () => {
                                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 pt-2"
                                                 htmlFor="grid-name"
                                             >
-                                                Loại sản phẩm
+                                                Mã giảm giá
                                             </label>
                                             <input
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
+                                                value={name}
                                                 type="text"
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập mã giảm giá"
                                                 onChange={(e) => setName(e.target.value)}
                                             />
                                         </div>
@@ -400,14 +412,34 @@ const ProductType = () => {
                                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                                                 htmlFor="grid-name"
                                             >
-                                                Mô tả
+                                                Phần trăm
                                             </label>
                                             <input
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
+                                                value={describe}
                                                 type="text"
-                                                placeholder="Nhập mô tả"
+                                                placeholder="Nhập phần trăm"
                                                 onChange={(e) => setDescribe(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap -mx-3 mb-6 w-full">
+                                        <div className="w-full px-3">
+                                            <label
+                                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                                htmlFor="grid-name"
+                                            >
+                                                Hạn sử dụng
+                                            </label>
+                                            <input
+                                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                id="grid-name"
+                                                type="date"
+                                                placeholder="Nhập phần trăm"
+                                                value={date}
+                                                onChange={(e) => setDate(e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -424,7 +456,7 @@ const ProductType = () => {
                         <div name='popup_alter' className={` ${alterTypeHeigh ? "h-screen" : "h-0"} bg-slate-600 z-30 transition-all duration-100 flex justify-center items-center flex-col top-0 left-0 bg-opacity-45 fixed w-full`}>
                             <div className={`${alterTypeHeigh ? "visable" : "hidden"} pb-8 w-[850px] bg-white rounded-lg flex flex-col items-center`}>
                                 <div className="w-full h-[15%] bg-slate-300 relative rounded-t-lg flex justify-center items-center text-[28px] font-semibold">
-                                    SỬA LOẠI SẢN PHẨM
+                                    SỬA MÃ GIẢM GIÁ
                                     <button
                                         type="button"
                                         onClick={() => showAlter(false)}
@@ -446,14 +478,14 @@ const ProductType = () => {
                                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 pt-2"
                                                 htmlFor="grid-name"
                                             >
-                                                Loại sản phẩm
+                                                Mã giảm giá
                                             </label>
                                             <input
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
                                                 value={fname}
-                                                placeholder="Nhập loại sản phẩm"
+                                                placeholder="Nhập mã giảm giá"
                                                 onChange={(e) => setFname(e.target.value)}
                                             />
                                         </div>
@@ -465,15 +497,34 @@ const ProductType = () => {
                                                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                                                 htmlFor="grid-name"
                                             >
-                                                Mô tả
+                                                Phần trăm
                                             </label>
                                             <input
                                                 className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                                                 id="grid-name"
                                                 type="text"
                                                 value={fdescribe}
-                                                placeholder="Nhập mô tả"
+                                                placeholder="Nhập phần trăm"
                                                 onChange={(e) => setFdescribe(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap -mx-3 mb-6 w-full">
+                                        <div className="w-full px-3">
+                                            <label
+                                                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                                                htmlFor="grid-name"
+                                            >
+                                                Hạn sử dụng
+                                            </label>
+                                            <input
+                                                className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                                id="grid-name"
+                                                type="date"
+                                                placeholder="Nhập phần trăm"
+                                                value={fdate}
+                                                onChange={(e) => setFdate(e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -495,4 +546,4 @@ const ProductType = () => {
     )
 }
 
-export default ProductType
+export default Voucher

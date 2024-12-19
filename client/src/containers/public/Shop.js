@@ -15,11 +15,12 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import * as actions from '../../store/actions'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const Shop = () => {
     const navigate = useNavigate()
+    const location = useLocation()
 
     function classNames(...classes) {
         return classes.filter(Boolean).join(' ')
@@ -38,22 +39,17 @@ const Shop = () => {
     const [maxPrice, setMaxPrice] = useState(-1);
     const [minPricee, setMinPricee] = useState(0);
     const [maxPricee, setMaxPricee] = useState(0);
+    const [name, setName] = useState('')
 
-    // useEffect(() => {
-    //     if (productlist.length > 0) {
-    //         const prices = productlist.map(product => product.PriceSale);
-    //         console.log('aaaa', prices)
-    //         setMaxPricee(Math.max(...prices));
-    //         setMinPricee(Math.min(...prices));
-    //     }
-    // }, [productlist]);
-
-    // useEffect(() => {
-    //     if (productlist.length > 0) {
-    //         setMinPrice(minPricee)
-    //         setMaxPrice(maxPricee)
-    //     }
-    // }, [minPricee, maxPricee]);
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const namee = queryParams.get('id');
+        if(namee){
+            setName(namee);
+            return
+        }
+        setName('')        
+      }, [location.search]);
 
     useEffect(() => {
         dispatch(actions.loadBanner())
@@ -69,14 +65,14 @@ const Shop = () => {
 
 
     const loadProduct = async (limit = 20) => {
-        dispatch(actions.loadProduct(page, limit, typeselect, sapxep, minPrice, maxPrice))
+        console.log('nameeee : ', name)
+        dispatch(actions.loadProduct(page, limit, typeselect, sapxep, minPrice, maxPrice, name))
             .then((response) => {
                 if (response.data.success) {
                     const newList = Array.from({ length: response.data.totalPages }, (_, i) => i + 1);
                     setPagelist(newList);
-                    console.log(newList)
-                    setMinPricee(response.data.minPrice)
-                    setMaxPricee(response.data.maxPrice)
+                    if(response.data.minPrice) setMinPricee(response.data.minPrice)
+                    if(response.data.maxPrice) setMaxPricee(response.data.maxPrice)
                     setPagecount(response.data.totalPages)
                     setProductlist(response.data.list)
                 }
@@ -112,15 +108,11 @@ const Shop = () => {
 
     useEffect(() => {
         loadProduct()
-    }, [page, typeselect, sapxep, minPrice, maxPrice])
+    }, [page, typeselect, sapxep, minPrice, maxPrice, name])
 
     useEffect(() => {
         loadProductTypeee()
     }, [])
-
-    useEffect(() => {
-        console.log(listProductTypeee)
-    }, [listProductTypeee])
 
 
     const sortOptions = [
@@ -265,14 +257,21 @@ const Shop = () => {
                 </div>
 
                 <div className='w-[1100px] h-[50px] bg-gray-300 flex pl-4 gap-2'>
-                    {typeselect != 'Loại' ?
+                    {name !== '' ?
+                        <div className='my-auto font-semibold bg-gray-300 h-8 min-w-14 rounded-2xl flex justify-center items-center p-2 border-2 border-slate-700 gap-2'>
+                            Tên : {name}
+                            <div onClick={() => {navigate('/shop', { replace: true });}} className='w-5 h-5 rounded-2xl bg-slate-700 flex items-center justify-center cursor-pointer'>
+                                <FontAwesomeIcon className='text-white' icon={faXmark} />
+                            </div>
+                        </div> : <div></div>}
+                    {typeselect !== 'Loại' ?
                         <div className='my-auto font-semibold bg-gray-300 h-8 min-w-14 rounded-2xl flex justify-center items-center p-2 border-2 border-slate-700 gap-2'>
                             {typeselect}
                             <div onClick={() => setTypeselect('Loại')} className='w-5 h-5 rounded-2xl bg-slate-700 flex items-center justify-center cursor-pointer'>
                                 <FontAwesomeIcon className='text-white' icon={faXmark} />
                             </div>
                         </div> : <div></div>}
-                    {sapxep != 'Sắp xếp' ?
+                    {sapxep !== 'Sắp xếp' ?
                         <div className='my-auto font-semibold bg-gray-300 h-8 min-w-14 rounded-2xl flex justify-center items-center p-2 border-2 border-slate-700 gap-2'>
                             {sapxep}
                             <div onClick={() => setSapxep('Sắp xếp')} className='w-5 h-5 rounded-2xl bg-slate-700 flex items-center justify-center cursor-pointer'>
@@ -282,7 +281,7 @@ const Shop = () => {
                     {minPrice !== -1 && maxPrice !== -1 ?
                         <div className='my-auto font-semibold bg-gray-300 h-8 min-w-14 rounded-2xl flex justify-center items-center p-2 border-2 border-slate-700 gap-2'>
                             Từ {minPrice.toLocaleString()} đ đến {maxPrice.toLocaleString()} đ
-                            <div onClick={() => {setMinPrice(-1); setMaxPrice(-1)}} className='w-5 h-5 rounded-2xl bg-slate-700 flex items-center justify-center cursor-pointer'>
+                            <div onClick={() => { setMinPrice(-1); setMaxPrice(-1) }} className='w-5 h-5 rounded-2xl bg-slate-700 flex items-center justify-center cursor-pointer'>
                                 <FontAwesomeIcon className='text-white' icon={faXmark} />
                             </div>
                         </div> : <div></div>}
@@ -305,7 +304,9 @@ const Shop = () => {
                                     <h3 className="mt-4 text-left text-sm text-gray-700">{product.Name}</h3>
                                     <div className='flex '>
                                         <div className="mt-1 text-left text-lg font-medium text-gray-900">{product.PriceSale ? product.PriceSale.toLocaleString() : product.price.toLocaleString()} đ</div>
-                                        <div className="mt-1 text-sm text-gray-500 line-through pl-4">{product.PriceSale ? product.Price.toLocaleString() : ''} đ</div>
+                                        {product.Price!=product.PriceSale ? <div className="mt-1 text-sm text-gray-500 line-through pl-4">{product.PriceSale ? product.Price.toLocaleString() : ''} đ</div> : <div></div>                               
+                                        }
+                                        
                                     </div>
 
                                 </div>

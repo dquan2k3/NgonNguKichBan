@@ -53,7 +53,7 @@ export const apiRemoveCart = async (id) => {
   }
 };
 
-export const apiCod = async(user, address, keyy) => {
+export const apiCod = async(user, address, keyy, giamgia) => {
   try {
     const response = await axiosConfig({
       method: 'post', 
@@ -61,7 +61,7 @@ export const apiCod = async(user, address, keyy) => {
       headers: {
         'Content-Type': 'application/json', 
       },
-      data: {user, address, keyy},
+      data: {user, address, keyy, giamgia},
       withCredentials: true,  
     });
     console.log(response)

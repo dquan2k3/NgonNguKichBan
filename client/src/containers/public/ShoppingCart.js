@@ -25,6 +25,11 @@ const ShoppingCart = () => {
     const [address, setAddress] = useState('')
     const [err, setErr] = useState('')
     const MySwal = withReactContent(Swal);
+    const [voucher, setVoucher] = useState('')
+    const [giamgia, setGiamGia] = useState(100)
+    const [tb, setTb] = useState('')
+
+
     const toggleHeight = (value) => {
         setIsFullHeight(value);
     };
@@ -89,6 +94,41 @@ const ShoppingCart = () => {
         });
     };
 
+    const SubmitVoucher = async () => {
+        if (voucher === '') {
+            setTb('Bạn chưa nhập mã giảm giá!')
+            return
+        }
+        const page = -1;
+        dispatch(actions.loadvoucher(page, voucher))
+            .then((response) => {
+                if (response && response.data.success) {
+                    const sp = response.data.list;
+                    if (sp) {
+                        const currentDate = new Date();  // Lấy ngày giờ hiện tại
+                        const voucherDate = new Date(sp.Date);  // Chuyển đổi ngày hết hạn voucher thành đối tượng Date
+
+                        // Kiểm tra xem voucher đã hết hạn chưa
+                        if (voucherDate < currentDate) {
+                            setTb('Mã giảm giá đã hết hạn!');
+                            setGiamGia(100);
+                            return;
+                        }
+
+                        setTb(`Bạn được giảm ${sp.Phantram} %`);
+                        setGiamGia(sp.Phantram);
+                    } else {
+                        alert('Mã giảm giá không hợp lệ!');
+                        setGiamGia(100);
+                    }
+                } else {
+                    console.log('Lỗi khi lấy voucher');
+                }
+            })
+            .catch((error) => {
+                console.log('Lỗi khi gọi API:', error);
+            });
+    };
 
 
 
@@ -109,7 +149,8 @@ const ShoppingCart = () => {
                 console.error("Token không hợp lệ:", error);
             }
         }
-        dispatch(actions.cod(user, address, key))
+        console.log(giamgia)
+        dispatch(actions.cod(user, address, key, giamgia))
             .then((response) => {
                 if (response && response.data.success) {
                     addToCartp(response.data.cart)
@@ -173,9 +214,10 @@ const ShoppingCart = () => {
                     <div className='flex justify-between mt-7'>
                         <div className='flex flex-col '>
                             Mã giảm giá :
+                            <div className={`${tb == 'Mã giảm giá đã hết hạn!' || tb == 'Bạn chưa nhập mã giảm giá!' ? 'text-red-600' : ''}`}>{tb}</div>
                             <div className='flex  mt-2'>
-                                <input className='border-gray-400 rounded-lg h-[45px]' placeholder='MA GIAM GIA'></input>
-                                <button class="relative ml-4 inline-flex items-center justify-center w-full p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">
+                                <input onChange={(e) => setVoucher(e.currentTarget.value)} value={voucher} className='border-gray-400 rounded-lg h-[45px]' placeholder='MA GIAM GIA'></input>
+                                <button onClick={SubmitVoucher} class="relative ml-4 inline-flex items-center justify-center w-full p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">
                                     <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                                         Áp dụng
                                     </span>
@@ -194,7 +236,7 @@ const ShoppingCart = () => {
 
                             <div className=''>
                                 <div className="font-bold text-xl pr-10 w-full flex justify-center">Thành tiền</div>
-                                <div className='mt-2'>{sum.toLocaleString()} đ</div>
+                                <div className='mt-2'>{(sum * giamgia / 100).toLocaleString()} đ</div>
                             </div>
                         </div>
 
@@ -249,9 +291,9 @@ const ShoppingCart = () => {
                         </div>
                         <div className='flex justify-between mt-3 pb-4'>
                             <div className='flex flex-col '>
-                                Mã giảm giá :
+                                Mã giảm giá: {giamgia !== 100 ? ` ${giamgia} %` : ''}
                                 <div className='flex  mt-2'>
-                                    <input className='border-gray-400 rounded-lg h-[45px] pointer-events-none bg-slate-200' placeholder='MA GIAM GIA' readOnly></input>
+                                    <input className='border-gray-400 rounded-lg h-[45px] pointer-events-none bg-slate-200' value={voucher} placeholder='MA GIAM GIA' readOnly></input>
 
                                 </div>
                             </div>
@@ -266,7 +308,7 @@ const ShoppingCart = () => {
 
                                 <div className=''>
                                     <div className="font-bold text-xl pr-10 w-full flex justify-center">Thành tiền</div>
-                                    <div className='mt-2'>{sum.toLocaleString()} đ</div>
+                                    <div className='mt-2'>{(sum * giamgia / 100).toLocaleString()} đ</div>
                                 </div>
                             </div>
 

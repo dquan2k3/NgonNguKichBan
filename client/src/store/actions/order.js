@@ -1,7 +1,7 @@
 import { apiDone, apiLoadOrder } from '../../services/order'
 
-export const loadOrder = (page) => async () =>{
-    const data = await apiLoadOrder({page})
+export const loadOrder = (page, user) => async () =>{
+    const data = await apiLoadOrder({page, user})
     return data
 }
 

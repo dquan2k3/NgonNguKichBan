@@ -15,6 +15,11 @@ router.post('/deleteProduct', ProductController.deleteProduct);
 router.post('/alterProduct', upload.single('file'), ProductController.alterProduct);
 router.post('/renderSaleProduct', ProductController.renderSaleProduct);
 router.post('/renderHotProduct', ProductController.renderHotProduct);
-
+router.post('/rate', ProductController.rate)
+router.post('/loadrate', ProductController.loadRate)
+router.post('/addwish', ProductController.wish)
+router.post('/checkwish', ProductController.checkWish)
+router.post('/loadwish', ProductController.loadWish)
+router.post('/loadproductbywish', ProductController.loadProductByWish)
 
 export default router
